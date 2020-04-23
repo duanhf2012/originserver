@@ -5,7 +5,9 @@ import (
 	"github.com/duanhf2012/origin/node"
 	"time"
 
+	_ "orginserver/simple_event"
 	_ "orginserver/simple_module"
+	_ "orginserver/simple_rpc"
 	//导入simple_service模块
 	_ "orginserver/simple_service"
 )
