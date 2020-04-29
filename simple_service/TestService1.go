@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/duanhf2012/origin/node"
 	"github.com/duanhf2012/origin/service"
+	"github.com/duanhf2012/origin/util/timer"
 	"time"
 )
 
@@ -19,6 +20,29 @@ type TestService1 struct {
 	//那么该自定义服务将有各种功能特性
 	//例如: Rpc,事件驱动,定时器等
 	service.Service
+
+	crontabModuleId int64
+}
+
+type CrontabModule struct {
+	service.Module
+}
+
+
+func (slf *CrontabModule) OnInit()error {
+  //cron定时器使用
+  pCron,err := timer.NewCronExpr("* * * * * *")
+  if err != nil {
+  	return err
+  }
+
+  //开始定时器
+  slf.CronFunc(pCron,slf.OnRun)
+  return nil
+}
+
+func (slf *CrontabModule) OnRun(){
+	fmt.Printf("CrontabModule OnRun.\n")
 }
 
 //服务初始化函数，在安装服务时，服务将自动调用OnInit函数
@@ -36,7 +60,22 @@ func (slf *TestService1) OnInit() error {
 	slf.AfterFunc(time.Second*2,slf.Loop)
 	//打开多线程处理模式，10个协程并发处理
 	//slf.SetGoRouterNum(10)
+
+	//增加module，在module中演示定时器
+	var err error
+	slf.crontabModuleId,err = slf.AddModule(&CrontabModule{})
+	if err!= nil {
+		return err
+	}
+
+	//10秒后删除module
+	slf.AfterFunc(time.Second*10,slf.ReleaseCrontabModule)
 	return nil
+}
+
+func (slf *TestService1) ReleaseCrontabModule(){
+	//释放module后，定时器也会一起释放
+	slf.ReleaseModule(slf.crontabModuleId)
 }
 
 func (slf *TestService1) Loop(){
