@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+package msgpb;
+
+
+enum MsgType //枚举消息类型
+{
+        MsgReq = 1;
+        MsgRes = 2;
+}
+
+message Req{
+  optional string msg = 1;
+}
+
+message Res{
+  optional string   msg = 2;
+}
+
+
+
+

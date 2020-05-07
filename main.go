@@ -5,11 +5,13 @@ import (
 	"github.com/duanhf2012/origin/node"
 	"time"
 
-	_ "orginserver/simple_event"
-	_ "orginserver/simple_module"
-	_ "orginserver/simple_rpc"
+	_ "originserver/simple_event"
+	_ "originserver/simple_http"
+	_ "originserver/simple_module"
+	_ "originserver/simple_rpc"
 	//导入simple_service模块
-	_ "orginserver/simple_service"
+	_ "originserver/simple_service"
+	_ "originserver/simple_tcp"
 )
 
 func main(){
