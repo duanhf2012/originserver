@@ -5,13 +5,13 @@ import (
 	"github.com/duanhf2012/origin/network/processor"
 	"github.com/duanhf2012/origin/node"
 	"github.com/duanhf2012/origin/service"
-	"github.com/duanhf2012/origin/sysservice"
+	"github.com/duanhf2012/origin/sysservice/tcpservice"
 	"github.com/golang/protobuf/proto"
 	"originserver/simple_tcp/msgpb"
 )
 
 func init(){
-	node.Setup(&sysservice.TcpService{})
+	node.Setup(&tcpservice.TcpService{})
 	node.Setup(&TestTcpService{})
 }
 
@@ -19,12 +19,12 @@ func init(){
 type TestTcpService struct {
 	service.Service
 	processor *processor.PBProcessor
-	tcpService *sysservice.TcpService
+	tcpService *tcpservice.TcpService
 }
 
 func (slf *TestTcpService) OnInit() error {
 	//获取安装好了的TcpService对象
-	slf.tcpService =  node.GetService("TcpService").(*sysservice.TcpService)
+	slf.tcpService =  node.GetService("TcpService").(*tcpservice.TcpService)
 
 	//新建内置的protobuf处理器，您也可以自定义路由器，比如json，后续会补充
 	slf.processor = processor.NewPBProcessor()

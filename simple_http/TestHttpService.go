@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"github.com/duanhf2012/origin/node"
 	"github.com/duanhf2012/origin/service"
-	"github.com/duanhf2012/origin/sysservice"
+	"github.com/duanhf2012/origin/sysservice/httpservice"
 	"net/http"
 )
 
 func init(){
-	node.Setup(&sysservice.HttpService{})
+	node.Setup(&httpservice.HttpService{})
 	node.Setup(&TestHttpService{})
 }
 
@@ -20,10 +20,10 @@ type TestHttpService struct {
 
 func (slf *TestHttpService) OnInit() error {
 	//获取系统httpservice服务
-	httpervice := node.GetService("HttpService").(*sysservice.HttpService)
+	httpervice := node.GetService("HttpService").(*httpservice.HttpService)
 
 	//新建并设置路由对象
-	httpRouter := sysservice.NewHttpHttpRouter()
+	httpRouter := httpservice.NewHttpHttpRouter()
 	httpervice.SetHttpRouter(httpRouter,slf.GetEventHandler())
 
 	//GET方法，请求url:http://127.0.0.1:9402/get/query?nickname=boyce
@@ -36,12 +36,12 @@ func (slf *TestHttpService) OnInit() error {
 	httpRouter.POST("/post/query", slf.HttpPost)
 
 	//GET方式获取目录下的资源，http://127.0.0.1:port/img/head/a.jpg
-	httpRouter.SetServeFile(sysservice.METHOD_GET,"/img/head/","d:/img")
+	httpRouter.SetServeFile(httpservice.METHOD_GET,"/img/head/","d:/img")
 
 	return nil
 }
 
-func (slf *TestHttpService) HttpGet(session *sysservice.HttpSession){
+func (slf *TestHttpService) HttpGet(session *httpservice.HttpSession){
 	//从头中获取key为uid对应的值
 	uid := session.GetHeader("uid")
 	//从url参数中获取key为nickname对应的值
@@ -58,7 +58,7 @@ type HttpRespone struct {
 	Msg string `json:"msg"`
 }
 
-func (slf *TestHttpService) HttpPost(session *sysservice.HttpSession){
+func (slf *TestHttpService) HttpPost(session *httpservice.HttpSession){
 	//也可以采用直接返回数据对象方式，如下：
 	session.WriteJsonDone(http.StatusOK,&HttpRespone{Msg: "hello world"})
 }

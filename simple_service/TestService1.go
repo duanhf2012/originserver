@@ -3,10 +3,14 @@ package simple_service
 import (
 	"fmt"
 	"github.com/duanhf2012/origin/node"
+	"github.com/duanhf2012/origin/rpc"
 	"github.com/duanhf2012/origin/service"
 	"github.com/duanhf2012/origin/util/timer"
+	"github.com/golang/protobuf/proto"
 	"time"
 )
+
+
 
 //模块加载时自动安装TestService1服务
 func init(){
@@ -84,3 +88,31 @@ func (slf *TestService1) Loop(){
 	//}
 }
 
+
+func (slf *TestService1) RPC_Test(input *rpc.PBRpcRequestData,output *rpc.PBRpcResponseData) error{
+	output.Seq = proto.Uint64(input.GetSeq())
+	output.Error = proto.String(input.GetServiceMethod())
+
+	panic("xxx")
+	return nil
+}
+
+func (slf *TestService1) RPC_Sum(input *InputData,output *OutputData) error{
+	output.A = input.A+input.B
+	output.C = input.C
+	//time.Sleep(20*time.Second)
+	return nil
+}
+
+//go:generate msgp
+type InputData struct {
+	A int
+	B int
+	C int
+}
+
+type OutputData struct {
+	A int
+	B int
+	C int
+}
