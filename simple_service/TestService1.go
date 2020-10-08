@@ -10,10 +10,8 @@ import (
 	"time"
 )
 
-
-
 //模块加载时自动安装TestService1服务
-func init(){
+func init() {
 	node.Setup(&TestService1{})
 }
 
@@ -32,20 +30,19 @@ type CrontabModule struct {
 	service.Module
 }
 
+func (slf *CrontabModule) OnInit() error {
+	//cron定时器使用
+	pCron, err := timer.NewCronExpr("* * * * * *")
+	if err != nil {
+		return err
+	}
 
-func (slf *CrontabModule) OnInit()error {
-  //cron定时器使用
-  pCron,err := timer.NewCronExpr("* * * * * *")
-  if err != nil {
-  	return err
-  }
-
-  //开始定时器
-  slf.CronFunc(pCron,slf.OnRun)
-  return nil
+	//开始定时器
+	slf.CronFunc(pCron, slf.OnRun)
+	return nil
 }
 
-func (slf *CrontabModule) OnRun(){
+func (slf *CrontabModule) OnRun() {
 	fmt.Printf("CrontabModule OnRun.\n")
 }
 
@@ -55,50 +52,49 @@ func (slf *TestService1) OnInit() error {
 	//打开性能分析工具
 	slf.OpenProfiler()
 	//监控超过1秒的慢处理
-	slf.GetProfiler().SetOverTime(time.Second*1)
+	slf.GetProfiler().SetOverTime(time.Second * 1)
 	//监控超过10秒的超慢处理，您可以用它来定位是否存在死循环
 	//比如以下设置10秒，我的应用中是不会发生超过10秒的一次函数调用
 	//所以设置为10秒。
-	slf.GetProfiler().SetMaxOverTime(time.Second*10)
+	slf.GetProfiler().SetMaxOverTime(time.Second * 10)
 
-	slf.AfterFunc(time.Second*2,slf.Loop)
+	slf.AfterFunc(time.Second*2, slf.Loop)
 	//打开多线程处理模式，10个协程并发处理
 	//slf.SetGoRouterNum(10)
 
 	//增加module，在module中演示定时器
 	var err error
-	slf.crontabModuleId,err = slf.AddModule(&CrontabModule{})
-	if err!= nil {
+	slf.crontabModuleId, err = slf.AddModule(&CrontabModule{})
+	if err != nil {
 		return err
 	}
 
 	//10秒后删除module
-	slf.AfterFunc(time.Second*10,slf.ReleaseCrontabModule)
+	slf.AfterFunc(time.Second*10, slf.ReleaseCrontabModule)
 	return nil
 }
 
-func (slf *TestService1) ReleaseCrontabModule(){
+func (slf *TestService1) ReleaseCrontabModule() {
 	//释放module后，定时器也会一起释放
 	slf.ReleaseModule(slf.crontabModuleId)
 }
 
-func (slf *TestService1) Loop(){
+func (slf *TestService1) Loop() {
 	//for {
-		time.Sleep(time.Second*1)
+	time.Sleep(time.Second * 1)
 	//}
 }
 
-
-func (slf *TestService1) RPC_Test(input *rpc.PBRpcRequestData,output *rpc.PBRpcResponseData) error{
+func (slf *TestService1) RPC_Test(input *rpc.PBRpcRequestData, output *rpc.PBRpcResponseData) error {
 	output.Seq = proto.Uint64(input.GetSeq())
 	output.Error = proto.String(input.GetServiceMethod())
 
-	panic("xxx")
+	//panic("xxx")
 	return nil
 }
 
-func (slf *TestService1) RPC_Sum(input *InputData,output *OutputData) error{
-	output.A = input.A+input.B
+func (slf *TestService1) RPC_Sum(input *InputData, output *OutputData) error {
+	output.A = input.A + input.B
 	output.C = input.C
 	//time.Sleep(20*time.Second)
 	return nil

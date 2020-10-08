@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -12,10 +11,14 @@ import (
 	//导入simple_service模块
 	_ "originserver/simple_service"
 	_ "originserver/simple_tcp"
+
+	_ "github.com/duanhf2012/origin/sysservice/tcpgateway"
+	_ "originserver/simple_gateway/gameservice"
+	_ "originserver/simple_gateway/testclientservice"
 )
 
-func main(){
+func main() {
 	//打开性能分析报告功能，并设置10秒汇报一次
-	node.OpenProfilerReport(time.Second*10)
+	node.OpenProfilerReport(time.Second * 10)
 	node.Start()
 }
