@@ -1,8 +1,8 @@
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/duanhf2012/origin v0.0.0-20201017120556-8fc24a86538b h1:w+kSc2SGL0pCkXvFHn3wSEUsFkzI0v+nMi2cTJsJs7c=
-github.com/duanhf2012/origin v0.0.0-20201017120556-8fc24a86538b/go.mod h1:9sgngFiYtOSMb6Ibl7lzJMRnokO1YBgv2znBf/zLD9s=
+github.com/duanhf2012/origin v0.0.0-20201019121632-93125e3f1c1c h1:DUwqd1lfUfmG/Fw3wdf+PvKqd/PeyRrt0Vbw1YExRfc=
+github.com/duanhf2012/origin v0.0.0-20201019121632-93125e3f1c1c/go.mod h1:9sgngFiYtOSMb6Ibl7lzJMRnokO1YBgv2znBf/zLD9s=
 github.com/golang/protobuf v1.4.0-rc.1/go.mod h1:ceaxUfeHdC40wWswd/P6IGgMaK3YpKi5j83Wpe3EHw8=
 github.com/golang/protobuf v1.4.0-rc.1.0.20200221234624-67d41d38c208/go.mod h1:xKAWHe0F5eneWXFV3EuXVDTCmh+JuBKY0li0aMyXATA=
 github.com/golang/protobuf v1.4.0-rc.2/go.mod h1:LlEzMj4AhA7rCAGe4KMBDvJI+AwstrUpVNzEA03Pprs=
