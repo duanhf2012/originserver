@@ -73,7 +73,7 @@ func (slf *TestClientService) OnTime() {
 	slf.tcpClient.AutoReconnect = true
 	slf.tcpClient.ConnNum = 1
 	slf.tcpClient.NewAgent = slf.NewAgent
-	slf.tcpClient.Start()
+	slf.tcpClient.Start() 
 }
 
 func (slf *TestClientService) SendMessage() {
@@ -87,7 +87,7 @@ func (slf *TestClientService) SendMessage() {
 	if err == nil {
 		err = slf.client.conn.WriteMsg(bData)
 		if err != nil {
-			slf.sendCron.Stop()
+			slf.sendCron.Close()
 		}
 	} else {
 		fmt.Printf("error....")
