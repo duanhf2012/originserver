@@ -3,6 +3,7 @@ package simple_rpc
 import (
 	"fmt"
 	"github.com/duanhf2012/origin/node"
+	"github.com/duanhf2012/origin/rpc"
 	"github.com/duanhf2012/origin/service"
 	"time"
 )
@@ -19,6 +20,8 @@ func (slf *TestService7) OnInit() error {
 	slf.AfterFunc(time.Second*2,slf.CallTest)
 	slf.AfterFunc(time.Second*2,slf.AsyncCallTest)
 	slf.AfterFunc(time.Second*2,slf.GoTest)
+	slf.AfterFunc(time.Second*2,slf.RawTest)
+	slf.AfterFunc(time.Second*2,slf.SyncTest)
 	return nil
 }
 
@@ -68,4 +71,39 @@ func (slf *TestService7) GoTest(){
 
 	//以下是广播方式，如果在同一个子网中有多个同名的服务名，CastGo将会广播给所有的node
 	//slf.CastGo("TestService6.RPC_Sum",&input)
+}
+
+type RawInputArgs struct {
+	rawData       []byte
+	additionParam []byte
+}
+
+func (args RawInputArgs) DoGc() {
+}
+
+func (args RawInputArgs) GetRawData() []byte {
+	return args.rawData
+}
+
+func (slf *TestService7) RawTest(){
+	var inputArgs RawInputArgs
+	inputArgs.rawData = []byte("hello world!")
+
+	slf.RawGoNode(rpc.RpcProcessorPb, 1, "TestService6.RPC_RawTest", inputArgs)
+}
+
+func (slf *TestService7) SyncTest() {
+	var input int = 3333
+	slf.AsyncCall("TestService6.RPC_SyncTest",&input,func(output *int,err error){
+		if err != nil {
+			fmt.Printf("AsyncCall error :%+v\n",err)
+		}else{
+			fmt.Printf("AsyncCall output %d\n",*output)
+		}
+	})
+
+	var output int = 444
+	err := slf.Call("TestService6.RPC_SyncTest",&input,&output)
+	fmt.Println(err,output)
+
 }

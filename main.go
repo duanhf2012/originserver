@@ -11,10 +11,6 @@ import (
 	//导入simple_service模块
 	_ "originserver/simple_service"
 	_ "originserver/simple_tcp"
-
-	_ "github.com/duanhf2012/origin/sysservice/tcpgateway"
-	_ "originserver/simple_gateway/gameservice"
-	_ "originserver/simple_gateway/testclientservice"
 )
 
 func main() {
