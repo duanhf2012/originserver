@@ -19,24 +19,15 @@
 		"PendingWriteNum":10000,
 		"LittleEndian":false,
 		"MinMsgLen":4,
-		"MaxMsgLen":65535
+		"MaxMsgLen":65535,
+		"ReadDeadline": 30,
+		"WriteDeadline": 30
 	  },
 	  "WSService":{
 		"ListenAddr":"0.0.0.0:9031",
 		"MaxConnNum":3000,
 		"PendingWriteNum":10000,
 		"MaxMsgLen":65535
-	  },
-	  "TcpGateService":{
-		  "MsgRouter":[
-			  {"MsgId":1000,"Rpc":"GameService.RPC_Login","LoadBalanceType":"Custom"},
-			  {"MsgId":1001,"Rpc":"GameService.RPC_Login","LoadBalanceType":"Custom"},
-			  {"MsgId":1002,"Rpc":"GameService.RPC_Login","LoadBalanceType":"Custom"}
-		  ],
-		  "EventRouter":[
-			  {"EventType":"Connect","Rpc":"GameService.RPC_OnConnect","LoadBalanceType":"Custom"},
-			  {"EventType":"DisConnect","Rpc":"GameService.RPC_OnDisConnect","LoadBalanceType":"Custom"}
-		  ]
 	  }
   },
   "NodeService":[
@@ -48,7 +39,9 @@
 		"PendingWriteNum":10000,
 		"LittleEndian":false,
 		"MinMsgLen":4,
-		"MaxMsgLen":65535
+		"MaxMsgLen":65535,
+		"ReadDeadline": 30,
+		"WriteDeadline": 30
 	  },
 	   "MyTcpService":{
 		   "ListenAddr":"0.0.0.0:9930",
@@ -56,7 +49,9 @@
 		   "PendingWriteNum":10000,
 		   "LittleEndian":false,
 		   "MinMsgLen":4,
-		   "MaxMsgLen":65535
+		   "MaxMsgLen":65535,
+		   "ReadDeadline": 30,
+		   "WriteDeadline": 30
 	   },
 	  "WSService":{
 		"ListenAddr":"0.0.0.0:9031",
@@ -74,7 +69,9 @@
 		"PendingWriteNum":10000,
 		"LittleEndian":false,
 		"MinMsgLen":4,
-		"MaxMsgLen":65535
+		"MaxMsgLen":65535,
+		"ReadDeadline": 30,
+		"WriteDeadline": 30
 	  },
 	  "WSService":{
 		"ListenAddr":"0.0.0.0:9031",
