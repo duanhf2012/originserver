@@ -6,7 +6,6 @@ import (
 	"github.com/duanhf2012/origin/rpc"
 	"github.com/duanhf2012/origin/service"
 	"github.com/duanhf2012/origin/util/timer"
-	"github.com/golang/protobuf/proto"
 	"time"
 )
 
@@ -86,8 +85,8 @@ func (slf *TestService1) Loop() {
 }
 
 func (slf *TestService1) RPC_Test(input *rpc.PBRpcRequestData, output *rpc.PBRpcResponseData) error {
-	output.Seq = proto.Uint64(input.GetSeq())
-	output.Error = proto.String(input.GetServiceMethod())
+	output.Seq = input.Seq
+	output.Error = input.ServiceMethod
 
 	//panic("xxx")
 	return nil
