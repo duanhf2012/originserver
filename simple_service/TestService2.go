@@ -35,8 +35,9 @@ func (slf *TestService2) OnSecondTick(){
 
 }
 
-func (slf *TestService2) OnCron(){
+func (slf *TestService2) OnCron(cron *timer.Cron){
 	fmt.Printf("A minute passed!\n")
+	//cron.Close()
 }
 
 

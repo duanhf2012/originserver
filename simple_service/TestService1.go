@@ -41,7 +41,7 @@ func (slf *CrontabModule) OnInit() error {
 	return nil
 }
 
-func (slf *CrontabModule) OnRun() {
+func (slf *CrontabModule) OnRun(cron *timer.Cron) {
 	fmt.Printf("CrontabModule OnRun.\n")
 }
 
