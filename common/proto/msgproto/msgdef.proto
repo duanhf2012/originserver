@@ -1,0 +1,19 @@
+syntax = "proto3";
+package msg;
+option go_package = ".;msg";
+
+enum MsgType //枚举消息类型
+{
+        MsgNil = 0;
+        MsgReq = 1;
+        MsgRes = 2;
+}
+
+message Req{
+  string msg = 1;
+}
+
+message Res{
+  string   msg = 2;
+}
+

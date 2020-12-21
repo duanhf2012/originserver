@@ -1,0 +1,16 @@
+syntax = "proto3";
+package rpc;
+option go_package =".;rpc";
+message PBRpcRequestData{  
+  uint64 Seq           = 1;
+  string ServiceMethod = 2;
+  bool NoReply         = 3;
+  bytes   InParam      = 4;
+}
+
+message PBRpcResponseData{
+  uint64 Seq = 1;
+  string Error = 2;
+  bytes Reply = 3;
+}
+

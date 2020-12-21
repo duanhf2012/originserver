@@ -1,0 +1,21 @@
+syntax = "proto3";
+package rpc;
+option go_package = ".;rpc";
+
+message TestOne{
+    string msg = 1;
+}
+
+message TestOneRet{
+    string msg = 1;
+}
+
+message TestTwo{
+    int32    data = 1;
+    string   msg = 2;
+}
+
+message TestTwoRet{
+    int32    data = 1;
+    string   msg = 2;
+}

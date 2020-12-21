@@ -1,11 +1,28 @@
 {
     "NodeList":[
-        {
-          "NodeId": 1,
-          "ListenAddr":"127.0.0.1:8801",
-          "NodeName": "Node_Test1",
-		  "remark":"//以_打头的，表示只在本机进程，不对整个子网开发",
-          "ServiceList": ["TestService1","TestService2","TestService3","TestService4","TestService5","TestService6","TestService7","HttpService","TestHttpService","TcpService","TestTcpService","TcpGateService","TestClientService","GameService","MyTcpService"]
-        }
+      {
+        "NodeId": 1,
+        "ListenAddr":"127.0.0.1:8801",
+        "NodeName": "Node_Test1",
+        "Private": true,
+        "remark":"//以_打头的，表示只在本机进程，不对整个子网开发",
+        "ServiceList": ["TestService1","TestService2","TestService3","TestService4","TestService5","TestService6","TestService7","HttpService","TestHttpService","TcpService","TestTcpService","TcpGateService","TestClientService","GameService","MyTcpService"]
+      },
+      {
+        "NodeId": 2,
+        "ListenAddr":"127.0.0.1:8802",
+        "NodeName": "Node_Test2",
+        "Private": false,
+        "remark":"//以_打头的，表示只在本机进程，不对整个子网开发",
+        "ServiceList": ["TestService8"]
+      },
+      {
+        "NodeId": 3,
+        "ListenAddr":"127.0.0.1:8803",
+        "NodeName": "Node_Test3",
+        "Private": false,
+        "remark":"//以_打头的，表示只在本机进程，不对整个子网开发",
+        "ServiceList": ["TestService9"]
+      }
     ]
 }
