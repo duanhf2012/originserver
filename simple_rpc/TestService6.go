@@ -17,6 +17,7 @@ type TestService6 struct {
 }
 
 func (slf *TestService6) OnInit() error {
+	slf.RegRawRpc(1, slf.RPCRawTest)
 	return nil
 }
 
@@ -30,11 +31,8 @@ func (slf *TestService6) RPC_Sum(input *InputData,output *int) error{
 	return nil
 }
 
-func (slf *TestService6) RPC_RawTest(input interface{}) error{
-	b := input.([]byte)
-	fmt.Println(string(b))
-
-	return nil
+func (slf *TestService6) RPCRawTest(input []byte) {
+	fmt.Println(string(input))
 }
 
 func (slf *TestService6) RPC_SyncTest(resp rpc.Responder,input *int,out *int) error{

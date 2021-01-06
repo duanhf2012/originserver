@@ -81,11 +81,9 @@ func (server *Server) Start(listenAddr string) {
 
 func (agent *RpcAgent) OnDestroy() {}
 
-func (agent *RpcAgent) WriteResponse(processor IRpcProcessor,serviceMethod string,seq uint64,reply interface{},err RpcError) {
+func (agent *RpcAgent) WriteResponse(processor IRpcProcessor,serviceMethod string,seq uint64,reply interface{},rpcError RpcError) {
 	var mReply []byte
-	var rpcError RpcError
 	var errM error
-
 
 	if reply!=nil {
 		mReply,errM = processor.Marshal(reply)
@@ -127,7 +125,7 @@ func (agent *RpcAgent) Run() {
 		}
 
 		//解析head
-		req := MakeRpcRequest(processor,0,"",false,nil)
+		req := MakeRpcRequest(processor,0,0,"",false,nil)
 		err = processor.Unmarshal(data[1:],req.RpcRequestData)
 		agent.conn.ReleaseReadMsg(data)
 		if err != nil {
@@ -146,7 +144,7 @@ func (agent *RpcAgent) Run() {
 
 		//交给程序处理
 		serviceMethod := strings.Split(req.RpcRequestData.GetServiceMethod(),".")
-		if len(serviceMethod)!=2 {
+		if len(serviceMethod) < 1 {
 			rpcError := RpcError("rpc request req.ServiceMethod is error")
 			agent.WriteResponse(processor,req.RpcRequestData.GetServiceMethod(),req.RpcRequestData.GetSeq(),nil,rpcError)
 			ReleaseRpcRequest(req)
@@ -166,6 +164,7 @@ func (agent *RpcAgent) Run() {
 		if req.RpcRequestData.IsNoReply()==false {
 			req.requestHandle = func(Returns interface{},Err RpcError){
 				agent.WriteResponse(processor,req.RpcRequestData.GetServiceMethod(),req.RpcRequestData.GetSeq(),Returns,Err)
+				ReleaseRpcRequest(req)
 			}
 		}
 
@@ -222,7 +221,7 @@ func (server *Server) myselfRpcHandlerGo(handlerName string,serviceMethod string
 }
 
 
-func (server *Server) selfNodeRpcHandlerGo(processor IRpcProcessor,client *Client,noReply bool,handlerName string,serviceMethod string, args interface{},reply interface{},inputArgs IRawInputArgs) *Call {
+func (server *Server) selfNodeRpcHandlerGo(processor IRpcProcessor,client *Client,noReply bool,handlerName string,rpcMethodId uint32,serviceMethod string, args interface{},reply interface{},inputArgs IRawInputArgs) *Call {
 	pCall := MakeCall()
 	pCall.Seq = client.generateSeq()
 
@@ -242,7 +241,7 @@ func (server *Server) selfNodeRpcHandlerGo(processor IRpcProcessor,client *Clien
 	if processor == nil {
 		_,processor = GetProcessorType(args)
 	}
-	req :=  MakeRpcRequest(processor,0, serviceMethod,noReply,nil)
+	req :=  MakeRpcRequest(processor,0,rpcMethodId, serviceMethod,noReply,nil)
 
 	req.bLocalRequest = true
 	req.localParam = args
@@ -285,7 +284,7 @@ func (server *Server) selfNodeRpcHandlerAsyncGo(client *Client,callerRpcHandler 
 	}
 
 	_,processor := GetProcessorType(args)
-	req := MakeRpcRequest(processor,0,serviceMethod,noReply,nil)
+	req := MakeRpcRequest(processor,0,0,serviceMethod,noReply,nil)
 	req.localParam = args
 	req.localReply = reply
 	req.bLocalRequest = true

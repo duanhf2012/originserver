@@ -22,7 +22,7 @@
         "NodeName": "Node_Test3",
         "Private": false,
         "remark":"//以_打头的，表示只在本机进程，不对整个子网开发",
-        "ServiceList": ["TestService9"]
+        "ServiceList": ["TestService9", "TestService10"]
       }
     ]
 }

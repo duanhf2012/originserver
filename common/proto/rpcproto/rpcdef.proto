@@ -19,3 +19,7 @@ message TestTwoRet{
     int32    data = 1;
     string   msg = 2;
 }
+
+message TestThree{
+  repeated uint64 UList = 1;
+}

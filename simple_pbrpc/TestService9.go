@@ -1,6 +1,7 @@
 package simple_pbrpc
 
 import (
+	"errors"
 	"github.com/duanhf2012/origin/log"
 	"github.com/duanhf2012/origin/node"
 	"github.com/duanhf2012/origin/service"
@@ -35,7 +36,13 @@ func (slf *TestService9) OnInit() error {
 	slf.CronFunc(pCron, slf.AsyncCallServer8TestTwo)
 	slf.CronFunc(pCronCall, slf.CallServer8TestOne)
 	slf.CronFunc(pCronCall, slf.CallServer8TestTwo)
+	//slf.AfterFunc(5 * time.Second, slf.PrintMsg)
 	return nil
+}
+
+func (slf *TestService9) PrintMsg() {
+	//network.PrintMakeReleaseCap()
+	slf.AfterFunc(5 * time.Second, slf.PrintMsg)
 }
 
 func (slf *TestService9) RPC_Service9TestOne(arg *rpc.TestOne, ret *rpc.TestOneRet) error {
@@ -56,6 +63,21 @@ func (slf *TestService9) RPC_Service9TestThree(arg *rpc.TestOne) error {
 		time.Sleep(10 * time.Second)
 		log.Release("RPC_Service9TestThree[%+v]", arg)
 	}()
+	return nil
+}
+
+func (slf *TestService9) RPC_Service9TestFour(arg *rpc.TestOne, ret *rpc.TestOneRet) error {
+	log.Release("RPC_Service9TestOne[%+v]", arg)
+	return errors.New("test error")
+}
+
+func (slf *TestService9) RPC_Service9TestFive(arg *rpc.TestOne, ret *rpc.TestOneRet) error {
+	panic("test panic")
+	return errors.New("test error")
+}
+
+func (slf *TestService9) RPC_Service9TestSix(arg *rpc.TestThree) error {
+	log.Release("RPC_Service9TestSix receive[%+v]", arg)
 	return nil
 }
 

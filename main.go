@@ -8,10 +8,10 @@ import (
 	_ "originserver/simple_http"
 	_ "originserver/simple_module"
 	_ "originserver/simple_rpc"
+	_ "originserver/simple_pbrpc"
 	//导入simple_service模块
 	_ "originserver/simple_service"
 	_ "originserver/simple_tcp"
-	_ "originserver/simple_pbrpc"
 )
 
 func main() {
