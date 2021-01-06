@@ -1,3 +1,3 @@
-protoc.exe --go_out=./proto/rpc ./proto/rpcproto/*.proto
-protoc.exe --go_out=./proto/msg ./proto/msgproto/*.proto
+protoc.exe --go_out=./rpc ./rpcproto/*.proto
+protoc.exe --go_out=./msg ./msgproto/*.proto
 PAUSE
