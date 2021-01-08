@@ -1,11 +1,11 @@
 package simple_pbrpc
 
 import (
-	"github.com/duanhf2012/origin/log"
+	"fmt"
 	"github.com/duanhf2012/origin/node"
 	rpcHandle "github.com/duanhf2012/origin/rpc"
 	"github.com/duanhf2012/origin/service"
-	"github.com/golang/protobuf/proto"
+	"github.com/gogo/protobuf/proto"
 	"originserver/common/proto/rpc"
 )
 
@@ -27,7 +27,7 @@ func (slf *TestService10) OnInit() error {
 	slf.channelOptData = make(chan TestRequest, 50)
 	go slf.ExecuteOptData(slf.channelOptData)
 
-	slf.RegRawRpc(1, slf.TestRpcRegister)
+	slf.RegRawRpc(1, &RPCRawTestCallBack{})
 	return nil
 }
 
@@ -45,7 +45,7 @@ func (slf *TestService10) DoDealData(dataReq TestRequest) {
 		Data:                 dataReq.request.Data,
 		Msg:                  dataReq.request.Msg,
 	}
-	dataReq.responder(&retInfo, rpcHandle.RpcError("test err"))
+	dataReq.responder(&retInfo, rpcHandle.NilError)
 }
 
 func (slf *TestService10) RPC_TestResponder(responder rpcHandle.Responder, request *rpc.TestTwo) error{
@@ -57,10 +57,17 @@ func (slf *TestService10) RPC_TestResponder(responder rpcHandle.Responder, reque
 	return nil
 }
 
-func (slf *TestService10) TestRpcRegister(byteBuffer []byte) {
-	argInfo := rpc.TestOne{}
-	proto.UnmarshalMerge(byteBuffer, &argInfo)
-	log.Release("TestRpcRegister receive[%+v]", &argInfo)
+type RPCRawTestCallBack struct {
+}
 
-	return
+func (cb *RPCRawTestCallBack) Unmarshal(data []byte) (interface{},error){
+	//fmt.Println(string(data))
+
+	retData := rpc.TestOne{}
+	err := proto.Unmarshal(data, &retData)
+	return retData,err
+}
+
+func (cb *RPCRawTestCallBack) CB(data interface{}){
+	fmt.Println(data)
 }

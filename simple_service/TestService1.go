@@ -84,7 +84,7 @@ func (slf *TestService1) Loop() {
 	//}
 }
 
-func (slf *TestService1) RPC_Test(input *rpc.PBRpcRequestData, output *rpc.PBRpcResponseData) error {
+func (slf *TestService1) RPC_Test(input *rpc.GoGoPBRpcRequestData, output *rpc.GoGoPBRpcResponseData) error {
 	output.Seq = input.Seq
 	output.Error = input.ServiceMethod
 

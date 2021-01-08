@@ -1,4 +1,4 @@
-# github.com/duanhf2012/origin v0.0.0-20210105102350-a282c7c2680e
+# github.com/duanhf2012/origin v0.0.0-20210108062037-f7fa7ab4369a
 ## explicit
 github.com/duanhf2012/origin/cluster
 github.com/duanhf2012/origin/console
@@ -12,8 +12,12 @@ github.com/duanhf2012/origin/rpc
 github.com/duanhf2012/origin/service
 github.com/duanhf2012/origin/sysservice/httpservice
 github.com/duanhf2012/origin/sysservice/tcpservice
+github.com/duanhf2012/origin/util/sync
 github.com/duanhf2012/origin/util/timer
 github.com/duanhf2012/origin/util/uuid
+# github.com/gogo/protobuf v1.3.1
+## explicit
+github.com/gogo/protobuf/proto
 # github.com/golang/protobuf v1.4.3
 ## explicit
 github.com/golang/protobuf/proto

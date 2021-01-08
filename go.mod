@@ -3,6 +3,7 @@ module originserver
 go 1.15
 
 require (
-	github.com/duanhf2012/origin v0.0.0-20210105102350-a282c7c2680e
+	github.com/duanhf2012/origin v0.0.0-20210108062037-f7fa7ab4369a
+	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.4.3
 )

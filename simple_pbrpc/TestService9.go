@@ -21,21 +21,21 @@ type TestService9 struct {
 }
 
 func (slf *TestService9) OnInit() error {
-	pCron, errCron := timer.NewCronExpr("*/10 * * * * *")
-	if errCron != nil {
-		return errCron
-	}
+	//pCron, errCron := timer.NewCronExpr("*/10 * * * * *")
+	//if errCron != nil {
+	//	return errCron
+	//}
 
-	pCronCall, errCallCron := timer.NewCronExpr("*/30 * * * * *")
-	if errCallCron != nil {
-		return errCallCron
-	}
+	//pCronCall, errCallCron := timer.NewCronExpr("*/30 * * * * *")
+	//if errCallCron != nil {
+	//	return errCallCron
+	//}
 
 	//开始定时器
-	slf.CronFunc(pCron, slf.AsyncCallServer8TestOne)
-	slf.CronFunc(pCron, slf.AsyncCallServer8TestTwo)
-	slf.CronFunc(pCronCall, slf.CallServer8TestOne)
-	slf.CronFunc(pCronCall, slf.CallServer8TestTwo)
+	//slf.CronFunc(pCron, slf.AsyncCallServer8TestOne)
+	//slf.CronFunc(pCron, slf.AsyncCallServer8TestTwo)
+	//slf.CronFunc(pCronCall, slf.CallServer8TestOne)
+	//slf.CronFunc(pCronCall, slf.CallServer8TestTwo)
 	//slf.AfterFunc(5 * time.Second, slf.PrintMsg)
 	return nil
 }

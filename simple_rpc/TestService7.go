@@ -89,7 +89,7 @@ func (slf *TestService7) RawTest(){
 	var inputArgs RawInputArgs
 	inputArgs.rawData = []byte("hello world!")
 
-	slf.RawGoNode(rpc.RpcProcessorPb, 1, 1, "TestService6", inputArgs)
+	slf.RawGoNode(rpc.RpcProcessorGoGoPB, 1, 1, "TestService6", inputArgs.rawData)
 }
 
 func (slf *TestService7) SyncTest() {

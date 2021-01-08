@@ -6,7 +6,7 @@ import (
 	rpcHandle "github.com/duanhf2012/origin/rpc"
 	"github.com/duanhf2012/origin/service"
 	"github.com/duanhf2012/origin/util/uuid"
-	"github.com/golang/protobuf/proto"
+	"github.com/gogo/protobuf/proto"
 	"math/rand"
 	"originserver/common/proto/rpc"
 	"time"
@@ -34,16 +34,16 @@ type TestService8 struct {
 
 func (slf *TestService8) OnInit() error {
 	//开始定时器
-	slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestOne)
-	slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestTwo)
-	slf.AfterFunc(5 * time.Second, slf.CallServer9TestOne)
-	slf.AfterFunc(5 * time.Second, slf.CallServer9TestTwo)
+	//slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestOne)
+	//slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestTwo)
+	//slf.AfterFunc(5 * time.Second, slf.CallServer9TestOne)
+	//slf.AfterFunc(5 * time.Second, slf.CallServer9TestTwo)
 	//slf.AfterFunc(5 * time.Second, slf.PrintMsg)
 
-	//slf.AfterFunc(5 * time.Second, slf.TestCallParameter)
+	//slf.AfterFunc(5 * time.Second, slf.TestGoParameter)
 	//slf.AfterFunc(5 * time.Second, slf.TestCallError)
-	//slf.AfterFunc(8 * time.Second, slf.TestRpcResponder)
-	slf.AfterFunc(5 * time.Second, slf.TestRpcRegister)
+	slf.AfterFunc(3 * time.Second, slf.TestRpcResponder)
+	//slf.AfterFunc(5 * time.Second, slf.TestRpcRegister)
 	//slf.AfterFunc(5 * time.Second, slf.TestCallPanic)
 	//slf.AfterFunc(5 * time.Second, slf.TestCallList)
 	return nil
@@ -76,7 +76,7 @@ func (slf *TestService8) TestRpcRegister() {
 
 	var inputArgs RawInputArgs
 	inputArgs.rawData = sendByte
-	slf.RawGoNode(rpcHandle.RpcProcessorPb, 3, 1, "TestService10", inputArgs)
+	slf.RawGoNode(rpcHandle.RpcProcessorGoGoPB, 3, 1, "TestService10", inputArgs.rawData)
 
 	slf.AfterFunc(5 * time.Second, slf.TestRpcRegister)
 }
@@ -107,9 +107,11 @@ func (slf *TestService8) TestRpcResponder() {
 	if errAsyncCall != nil {
 		log.Error("%+v", errAsyncCall)
 	}
+
+	slf.AfterFunc(3 * time.Second, slf.TestRpcResponder)
 }
 
-func (slf *TestService8) TestCallParameter() {
+func (slf *TestService8) TestGoParameter() {
 	argOne := rpc.TestOne{Msg: "Test111111111111111111111"}
 	errGo := slf.Go("TestService9.RPC_Service9TestThree", &argOne)
 	if errGo != nil {
@@ -122,7 +124,7 @@ func (slf *TestService8) TestCallParameter() {
 		log.Error("TestService8 RPC_Service9TestThree err[%+v], arg[%+v]", errGo, &argTwo)
 	}
 
-	slf.AfterFunc(5 * time.Second, slf.TestCallParameter)
+	slf.AfterFunc(5 * time.Second, slf.TestGoParameter)
 }
 
 func (slf *TestService8) TestCallPanic() {
@@ -155,12 +157,14 @@ func (slf *TestService8) TestCallError() {
 	argTwo := rpc.TestOne{Msg: "Test22222222222"}
 	err1 := slf.AsyncCall("TestService9.RPC_Service9TestFour", &argTwo, func(ret *rpc.TestOneRet, err error){
 		if err != nil {
-			log.Error("TestService8 RPC_Service9TestFour err[%+v], arg[%+v]", err, &argOne)
+			log.Error("TestService8 RPC_Service9TestFour err[%+v], arg[%+v]", err, &argTwo)
 		}
 	})
 	if err1 != nil {
 		log.Error("TestService8 RPC_Service9TestFour err[%+v], arg[%+v]", err1, &argTwo)
 	}
+
+	slf.AfterFunc(5 * time.Second, slf.TestCallError)
 }
 
 func (slf *TestService8) PrintMsg() {
@@ -176,8 +180,9 @@ func (slf *TestService8) AsyncCallServer9TestOne() {
 				&arg, func(ret *rpc.TestOneRet, err error) {
 				if err != nil || ret.Msg != arg.Msg {
 					log.Error("TestService8 AsyncCallServer9TestOne err[%+v], arg[%+v], ret[%+v]", err, arg, ret)
+					return
 				}
-				//log.Release("Async call RPC_Service9TestOne receive[%+v]", ret)
+				log.Release("Async call RPC_Service9TestOne receive[%+v]", ret)
 			})
 			if errCall != nil {
 				log.Error("TestService8 AsyncCallServer9TestOne err[%+v]", errCall)
@@ -194,8 +199,9 @@ func (slf *TestService8) AsyncCallServer9TestTwo() {
 			errCall := slf.AsyncCall("TestService9.RPC_Service9TestTwo", &arg, func(ret *rpc.TestTwoRet, err error) {
 				if err != nil || ret.Msg != arg.Msg || ret.Data != arg.Data {
 					log.Error("TestService8 AsyncCallServer9TestTwo err[%+v], arg[%+v], ret[%+v]", err, arg, ret)
+					return
 				}
-				//log.Release("Async call RPC_Service9TestTwo receive[%+v]", ret)
+				log.Release("Async call RPC_Service9TestTwo receive[%+v]", ret)
 			})
 			if errCall != nil {
 				log.Error("TestService8 AsyncCallServer9TestTwo err[%+v]", errCall)
@@ -213,8 +219,9 @@ func (slf *TestService8) CallServer9TestOne() {
 			errCall := slf.Call("TestService9.RPC_Service9TestOne", &arg, &ret)
 			if errCall != nil || arg.Msg != ret.Msg {
 				log.Error("TestService8 CallServer9TestOne err[%+v], arg[%+v], ret[%+v]", errCall, &arg, &ret)
+				return
 			}
-			//log.Release("call RPC_Service9TestOne receive[%+v]", ret)
+			log.Release("call RPC_Service9TestOne receive[%+v]", ret)
 		}()
 	}
 	slf.AfterFunc(5 * time.Second, slf.CallServer9TestOne)

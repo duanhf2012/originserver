@@ -1,6 +1,7 @@
 package simple_rpc
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/duanhf2012/origin/node"
 	"github.com/duanhf2012/origin/rpc"
@@ -17,7 +18,7 @@ type TestService6 struct {
 }
 
 func (slf *TestService6) OnInit() error {
-	slf.RegRawRpc(1, slf.RPCRawTest)
+	slf.RegRawRpc(1, &RPCRawTestCallBack{})
 	return nil
 }
 
@@ -31,10 +32,6 @@ func (slf *TestService6) RPC_Sum(input *InputData,output *int) error{
 	return nil
 }
 
-func (slf *TestService6) RPCRawTest(input []byte) {
-	fmt.Println(string(input))
-}
-
 func (slf *TestService6) RPC_SyncTest(resp rpc.Responder,input *int,out *int) error{
 	go func(){
 		time.Sleep(3*time.Second)
@@ -44,3 +41,19 @@ func (slf *TestService6) RPC_SyncTest(resp rpc.Responder,input *int,out *int) er
 
 	return nil
 }
+
+type RPCRawTestCallBack struct {
+}
+
+func (cb *RPCRawTestCallBack) Unmarshal(data []byte) (interface{},error){
+	fmt.Println(string(data))
+
+	retData := InputData{}
+	err := json.Unmarshal(data, &retData)
+	return retData,err
+}
+
+func (cb *RPCRawTestCallBack) CB(data interface{}){
+	fmt.Println(data)
+}
+

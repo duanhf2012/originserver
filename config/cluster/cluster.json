@@ -12,7 +12,7 @@
         "NodeId": 2,
         "ListenAddr":"127.0.0.1:8802",
         "NodeName": "Node_Test2",
-        "Private": false,
+        "Private": true,
         "remark":"//以_打头的，表示只在本机进程，不对整个子网开发",
         "ServiceList": ["TestService8"]
       },
@@ -20,9 +20,17 @@
         "NodeId": 3,
         "ListenAddr":"127.0.0.1:8803",
         "NodeName": "Node_Test3",
-        "Private": false,
+        "Private": true,
         "remark":"//以_打头的，表示只在本机进程，不对整个子网开发",
-        "ServiceList": ["TestService9", "TestService10"]
+        "ServiceList": ["TestService8","TestService9", "TestService10"]
+      },
+      {
+        "NodeId": 4,
+        "ListenAddr":"127.0.0.1:8804",
+        "NodeName": "Node_Test4",
+        "Private": true,
+        "remark":"//以_打头的，表示只在本机进程，不对整个子网开发",
+        "ServiceList": ["TestService11", "TestService12"]
       }
     ]
 }

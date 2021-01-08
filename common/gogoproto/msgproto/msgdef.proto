@@ -1,0 +1,19 @@
+syntax = "proto3";
+package gogomsg;
+option go_package = ".;gogomsg";
+
+enum MsgType //枚举消息类型
+{
+        MsgNil = 0;
+        MsgReq = 1;
+        MsgRes = 2;
+}
+
+message Req{
+  string msg = 1;
+}
+
+message Res{
+  string   msg = 2;
+}
+

@@ -6,7 +6,7 @@ import (
 	"github.com/duanhf2012/origin/node"
 	"github.com/duanhf2012/origin/service"
 	"github.com/duanhf2012/origin/sysservice/tcpservice"
-	"github.com/golang/protobuf/proto"
+	"github.com/gogo/protobuf/proto"
 	msgpb "originserver/common/proto/msg"
 )
 

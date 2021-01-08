@@ -1,0 +1,25 @@
+syntax = "proto3";
+package gogorpc;
+option go_package = ".;gogorpc";
+
+message TestOne{
+    string msg = 1;
+}
+
+message TestOneRet{
+    string msg = 1;
+}
+
+message TestTwo{
+    int32    data = 1;
+    string   msg = 2;
+}
+
+message TestTwoRet{
+    int32    data = 1;
+    string   msg = 2;
+}
+
+message TestThree{
+  repeated uint64 UList = 1;
+}
