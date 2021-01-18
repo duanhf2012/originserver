@@ -4,6 +4,7 @@ import (
 	"github.com/duanhf2012/origin/event"
 	"github.com/duanhf2012/origin/node"
 	"github.com/duanhf2012/origin/service"
+	"github.com/duanhf2012/origin/util/timer"
 	"time"
 )
 
@@ -27,7 +28,7 @@ func (slf *TestService4) OnInit() error {
 	return nil
 }
 
-func (slf *TestService4) TriggerEvent(){
+func (slf *TestService4) TriggerEvent(t *timer.Timer){
 	//广播事件，传入event.Event对象，类型为EVENT1,Data可以自定义任何数据
 	//这样，所有监听者都可以收到该事件
 	slf.GetEventHandler().NotifyEvent(&event.Event{

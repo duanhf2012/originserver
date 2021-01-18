@@ -5,6 +5,7 @@ import (
 	"github.com/duanhf2012/origin/node"
 	"github.com/duanhf2012/origin/rpc"
 	"github.com/duanhf2012/origin/service"
+	"github.com/duanhf2012/origin/util/timer"
 	"time"
 )
 
@@ -25,7 +26,7 @@ func (slf *TestService7) OnInit() error {
 	return nil
 }
 
-func (slf *TestService7) CallTest(){
+func (slf *TestService7) CallTest(t *timer.Timer){
 	var input InputData
 	input.A = 300
 	input.B = 600
@@ -41,7 +42,7 @@ func (slf *TestService7) CallTest(){
 }
 
 
-func (slf *TestService7) AsyncCallTest(){
+func (slf *TestService7) AsyncCallTest(t *timer.Timer){
 	var input InputData
 	input.A = 300
 	input.B = 600
@@ -58,7 +59,7 @@ func (slf *TestService7) AsyncCallTest(){
 	})
 }
 
-func (slf *TestService7) GoTest(){
+func (slf *TestService7) GoTest(t *timer.Timer){
 	var input InputData
 	input.A = 300
 	input.B = 600
@@ -78,21 +79,25 @@ type RawInputArgs struct {
 	additionParam []byte
 }
 
-func (args RawInputArgs) DoGc() {
+func (args RawInputArgs) DoFree() {
+}
+
+func (args RawInputArgs) DoEscape() {
+
 }
 
 func (args RawInputArgs) GetRawData() []byte {
 	return args.rawData
 }
 
-func (slf *TestService7) RawTest(){
+func (slf *TestService7) RawTest(t *timer.Timer){
 	var inputArgs RawInputArgs
 	inputArgs.rawData = []byte("hello world!")
 
-	slf.RawGoNode(rpc.RpcProcessorGoGoPB, 1, 1, "TestService6", inputArgs.rawData)
+	slf.RawGoNode(rpc.RpcProcessorGoGoPB, 1, 1, "TestService6", &inputArgs)
 }
 
-func (slf *TestService7) SyncTest() {
+func (slf *TestService7) SyncTest(t *timer.Timer) {
 	var input int = 3333
 	slf.AsyncCall("TestService6.RPC_SyncTest",&input,func(output *int,err error){
 		if err != nil {

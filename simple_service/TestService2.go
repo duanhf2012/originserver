@@ -30,7 +30,7 @@ func (slf *TestService2) OnInit() error {
 	return nil
 }
 
-func (slf *TestService2) OnSecondTick(){
+func (slf *TestService2) OnSecondTick(t *timer.Timer){
 	fmt.Printf("tick.\n")
 
 }

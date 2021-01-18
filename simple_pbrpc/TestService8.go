@@ -5,6 +5,7 @@ import (
 	"github.com/duanhf2012/origin/node"
 	rpcHandle "github.com/duanhf2012/origin/rpc"
 	"github.com/duanhf2012/origin/service"
+	"github.com/duanhf2012/origin/util/timer"
 	"github.com/duanhf2012/origin/util/uuid"
 	"github.com/gogo/protobuf/proto"
 	"math/rand"
@@ -24,9 +25,11 @@ func (args RawInputArgs) GetRawData() []byte {
 	return args.rawData
 }
 
-func (args RawInputArgs) DoGc() {
+func (args RawInputArgs) DoFree() {
 }
 
+func (args RawInputArgs) DoEscape() {
+}
 
 type TestService8 struct {
 	service.Service
@@ -34,18 +37,18 @@ type TestService8 struct {
 
 func (slf *TestService8) OnInit() error {
 	//开始定时器
-	//slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestOne)
-	//slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestTwo)
-	//slf.AfterFunc(5 * time.Second, slf.CallServer9TestOne)
-	//slf.AfterFunc(5 * time.Second, slf.CallServer9TestTwo)
-	//slf.AfterFunc(5 * time.Second, slf.PrintMsg)
+	slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestOne)
+	slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestTwo)
+	slf.AfterFunc(5 * time.Second, slf.CallServer9TestOne)
+	slf.AfterFunc(5 * time.Second, slf.CallServer9TestTwo)
+	slf.AfterFunc(5 * time.Second, slf.PrintMsg)
 
 	//slf.AfterFunc(5 * time.Second, slf.TestGoParameter)
 	//slf.AfterFunc(5 * time.Second, slf.TestCallError)
 	slf.AfterFunc(3 * time.Second, slf.TestRpcResponder)
-	//slf.AfterFunc(5 * time.Second, slf.TestRpcRegister)
+	slf.AfterFunc(5 * time.Second, slf.TestRpcRegister)
 	//slf.AfterFunc(5 * time.Second, slf.TestCallPanic)
-	//slf.AfterFunc(5 * time.Second, slf.TestCallList)
+	slf.AfterFunc(5 * time.Second, slf.TestCallList)
 	return nil
 }
 
@@ -62,7 +65,7 @@ func (slf *TestService8) RPC_Service8TestTwo(arg *rpc.TestTwo, ret *rpc.TestTwoR
 	return nil
 }
 
-func (slf *TestService8) TestCallList() {
+func (slf *TestService8) TestCallList(t *timer.Timer) {
 	arg := rpc.TestThree{
 		UList:                make([]uint64, 0, 10),
 	}
@@ -70,18 +73,18 @@ func (slf *TestService8) TestCallList() {
 	slf.Go("TestService9.RPC_Service9TestSix", &arg)
 }
 
-func (slf *TestService8) TestRpcRegister() {
+func (slf *TestService8) TestRpcRegister(t *timer.Timer) {
 	arg := rpc.TestOne{Msg: "test Rpc Register"}
 	sendByte, _ := proto.Marshal(&arg)
 
 	var inputArgs RawInputArgs
 	inputArgs.rawData = sendByte
-	slf.RawGoNode(rpcHandle.RpcProcessorGoGoPB, 3, 1, "TestService10", inputArgs.rawData)
+	slf.RawGoNode(rpcHandle.RpcProcessorGoGoPB, 3, 1, "TestService10", &inputArgs)
 
 	slf.AfterFunc(5 * time.Second, slf.TestRpcRegister)
 }
 
-func (slf *TestService8) TestRpcResponder() {
+func (slf *TestService8) TestRpcResponder(t *timer.Timer) {
 	argCall := rpc.TestTwo{
 		Data:                 100,
 		Msg:                  "test responder",
@@ -111,7 +114,7 @@ func (slf *TestService8) TestRpcResponder() {
 	slf.AfterFunc(3 * time.Second, slf.TestRpcResponder)
 }
 
-func (slf *TestService8) TestGoParameter() {
+func (slf *TestService8) TestGoParameter(t *timer.Timer) {
 	argOne := rpc.TestOne{Msg: "Test111111111111111111111"}
 	errGo := slf.Go("TestService9.RPC_Service9TestThree", &argOne)
 	if errGo != nil {
@@ -146,7 +149,7 @@ func (slf *TestService8) TestCallPanic() {
 	}
 }
 
-func (slf *TestService8) TestCallError() {
+func (slf *TestService8) TestCallError(t *timer.Timer) {
 	argOne := rpc.TestOne{Msg: "Test111111111111111111111"}
 	retOne := rpc.TestOneRet{}
 	err := slf.Call("TestService9.RPC_Service9TestFour", &argOne, &retOne)
@@ -167,12 +170,11 @@ func (slf *TestService8) TestCallError() {
 	slf.AfterFunc(5 * time.Second, slf.TestCallError)
 }
 
-func (slf *TestService8) PrintMsg() {
-	//network.PrintMakeReleaseCap()
+func (slf *TestService8) PrintMsg(t *timer.Timer) {
 	slf.AfterFunc(5 * time.Second, slf.PrintMsg)
 }
 
-func (slf *TestService8) AsyncCallServer9TestOne() {
+func (slf *TestService8) AsyncCallServer9TestOne(t *timer.Timer) {
 	for i := 0; i < 10; i++ {
 		go func() {
 			arg := rpc.TestOne{Msg: uuid.Rand().HexEx()}
@@ -192,7 +194,7 @@ func (slf *TestService8) AsyncCallServer9TestOne() {
 	slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestOne)
 }
 
-func (slf *TestService8) AsyncCallServer9TestTwo() {
+func (slf *TestService8) AsyncCallServer9TestTwo(t *timer.Timer) {
 	for i := 0; i < 10; i++ {
 		go func() {
 			arg := rpc.TestTwo{Msg: uuid.Rand().HexEx(), Data: int32(rand.Int())}
@@ -211,7 +213,7 @@ func (slf *TestService8) AsyncCallServer9TestTwo() {
 	slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestTwo)
 }
 
-func (slf *TestService8) CallServer9TestOne() {
+func (slf *TestService8) CallServer9TestOne(t *timer.Timer) {
 	for i := 0; i < 10; i++ {
 		go func() {
 			arg := rpc.TestOne{Msg: uuid.Rand().HexEx()}
@@ -227,7 +229,7 @@ func (slf *TestService8) CallServer9TestOne() {
 	slf.AfterFunc(5 * time.Second, slf.CallServer9TestOne)
 }
 
-func (slf *TestService8) CallServer9TestTwo() {
+func (slf *TestService8) CallServer9TestTwo(t *timer.Timer) {
 	for i := 0; i < 10; i++ {
 		go func() {
 			arg := rpc.TestTwo{Msg: uuid.Rand().HexEx(), Data: int32(rand.Int())}

@@ -4,6 +4,7 @@ import (
 	"github.com/duanhf2012/origin/log"
 	"github.com/duanhf2012/origin/node"
 	"github.com/duanhf2012/origin/service"
+	"github.com/duanhf2012/origin/util/timer"
 	"github.com/duanhf2012/origin/util/uuid"
 	"originserver/common/gogoproto/gogorpc"
 	"time"
@@ -24,7 +25,7 @@ func (slf *TestService11) OnInit() error {
 	return nil
 }
 
-func (slf *TestService11) AsyncCallServer12TestOne() {
+func (slf *TestService11) AsyncCallServer12TestOne(t *timer.Timer) {
 	for i := 0; i < 10; i++ {
 		go func() {
 			arg := gogorpc.TestOne{Msg: uuid.Rand().HexEx()}
@@ -43,7 +44,7 @@ func (slf *TestService11) AsyncCallServer12TestOne() {
 	slf.AfterFunc(10 * time.Second, slf.AsyncCallServer12TestOne)
 }
 
-func (slf *TestService11) CallServer12TestOne() {
+func (slf *TestService11) CallServer12TestOne(t *timer.Timer) {
 	for i := 0; i < 10; i++ {
 		go func() {
 			arg := gogorpc.TestOne{Msg: uuid.Rand().HexEx()}

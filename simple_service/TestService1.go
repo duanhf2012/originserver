@@ -73,12 +73,12 @@ func (slf *TestService1) OnInit() error {
 	return nil
 }
 
-func (slf *TestService1) ReleaseCrontabModule() {
+func (slf *TestService1) ReleaseCrontabModule(t *timer.Timer) {
 	//释放module后，定时器也会一起释放
 	slf.ReleaseModule(slf.crontabModuleId)
 }
 
-func (slf *TestService1) Loop() {
+func (slf *TestService1) Loop(t *timer.Timer) {
 	//for {
 	time.Sleep(time.Second * 1)
 	//}
