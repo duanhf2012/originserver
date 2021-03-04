@@ -15,9 +15,6 @@ import (
 	_ "originserver/simple_tcp"
 )
 
-type T1 struct {
-	a int
-}
 
 func main() {
 	//打开性能分析报告功能，并设置10秒汇报一次
