@@ -28,8 +28,9 @@ func (slf *TestModule) OnInit() error{
 	return nil
 }
 
-func (slf *TestModule) OnModuleEvent(ev *event.Event){
-	fmt.Printf("OnModuleEvent type :%d data:%+v\n",ev.Type,ev.Data)
+func (slf *TestModule) OnModuleEvent(ev event.IEvent){
+	event := ev.(*event.Event)
+	fmt.Printf("OnModuleEvent type :%d data:%+v\n",event.GetEventType(),event.Data)
 }
 
 
@@ -44,7 +45,8 @@ func (slf *TestService5) OnInit() error {
 	return nil
 }
 
-func (slf *TestService5) OnServiceEvent(ev *event.Event){
-	fmt.Printf("OnServiceEvent type :%d data:%+v\n",ev.Type,ev.Data)
+func (slf *TestService5) OnServiceEvent(ev event.IEvent){
+	event := ev.(*event.Event)
+	fmt.Printf("OnServiceEvent type :%d data:%+v\n",event.Type,event.Data)
 }
 
