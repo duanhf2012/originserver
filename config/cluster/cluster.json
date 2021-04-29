@@ -1,4 +1,11 @@
 {
+	"DiscoveryNode":[{
+	  "NodeId": 1,
+	  "ListenAddr":"127.0.0.1:8803"
+	}
+	],
+	
+	
     "NodeList":[
       {
         "NodeId": 1,

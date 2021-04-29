@@ -19,12 +19,23 @@ type TestService6 struct {
 
 func (slf *TestService6) OnInit() error {
 	slf.RegRawRpc(1, &RPCRawTestCallBack{})
+
+	//监听其他Node结点连接和断开事件
+	slf.RegRpcListener(slf)
 	return nil
 }
 
 type InputData struct {
 	A int
 	B int
+}
+
+func (slf *TestService6) OnRpcConnected(nodeId int){
+	fmt.Printf("node id %d is conntected.\n", nodeId)
+}
+
+func (slf *TestService6) OnRpcDisconnect(nodeId int){
+	fmt.Printf("node id %d is disconntected.\n", nodeId)
 }
 
 func (slf *TestService6) RPC_Sum(input *InputData,output *int) error{

@@ -1,4 +1,4 @@
-# github.com/duanhf2012/origin v0.0.0-20210225102325-14a423e161f3
+# github.com/duanhf2012/origin v0.0.0-20210429093313-6757eedc4875
 ## explicit
 github.com/duanhf2012/origin/cluster
 github.com/duanhf2012/origin/console

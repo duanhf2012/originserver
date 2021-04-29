@@ -1,6 +1,7 @@
 package simple_rpc
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/duanhf2012/origin/node"
 	"github.com/duanhf2012/origin/rpc"
@@ -92,8 +93,12 @@ func (args RawInputArgs) GetRawData() []byte {
 
 func (slf *TestService7) RawTest(t *timer.Timer){
 	var inputArgs RawInputArgs
-	inputArgs.rawData = []byte("hello world!")
 
+	retData := InputData{}
+	retData.B =	100
+	retData.A = 101
+
+	inputArgs.rawData,_ = json.Marshal(&retData)
 	slf.RawGoNode(rpc.RpcProcessorGoGoPB, 1, 1, "TestService6", &inputArgs)
 }
 
