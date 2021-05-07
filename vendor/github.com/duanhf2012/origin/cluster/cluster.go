@@ -13,6 +13,12 @@ var configDir = "./config/"
 
 type SetupServiceFun func(s ...service.IService)
 
+type NodeStatus int
+const(
+	Normal NodeStatus   = 0 //正常
+	Discard NodeStatus  = 1 //丢弃
+)
+
 type NodeInfo struct {
 	NodeId int
 	NodeName string
@@ -21,6 +27,8 @@ type NodeInfo struct {
 	ServiceList []string       //所有的服务列表
 	PublicServiceList []string //对外公开的服务列表
 	DiscoveryService []string  //筛选发现的服务，如果不配置，不进行筛选
+	NeighborService []string
+	status NodeStatus
 }
 
 type NodeRpcInfo struct {
@@ -30,8 +38,8 @@ type NodeRpcInfo struct {
 
 var cluster Cluster
 type Cluster struct {
-	localNodeInfo NodeInfo						//本结点配置信息
-	discoveryNodeList []NodeInfo				//配置发现Master结点
+	localNodeInfo           NodeInfo   //本结点配置信息
+	masterDiscoveryNodeList []NodeInfo //配置发现Master结点
 
 	localServiceCfg map[string]interface{} 		//map[serviceName]配置数据*
 	mapRpc map[int] NodeRpcInfo            		//nodeId
@@ -66,7 +74,21 @@ func (cls *Cluster) Stop() {
 	cls.serviceDiscovery.OnNodeStop()
 }
 
-func (cls *Cluster) DelNode(nodeId int){
+func (cls *Cluster) DiscardNode(nodeId int){
+	cls.locker.Lock()
+	nodeInfo,ok := cls.mapIdNode[nodeId]
+	cls.locker.Unlock()
+
+	if ok==true && nodeInfo.status == Discard {
+		cls.DelNode(nodeId,true)
+	}
+}
+
+func (cls *Cluster) DelNode(nodeId int,immediately bool){
+	//不删除
+	if cls.GetMasterDiscoveryNodeInfo(nodeId)!=nil || nodeId == cls.localNodeInfo.NodeId {
+		return
+	}
 	cls.locker.Lock()
 	nodeInfo,ok := cls.mapIdNode[nodeId]
 	if ok == false {
@@ -74,26 +96,46 @@ func (cls *Cluster) DelNode(nodeId int){
 		return
 	}
 
+	rpc,ok := cls.mapRpc[nodeId]
+	for{
+		//立即删除
+		if immediately || ok == false {
+			break
+		}
+
+		rpc.client.Lock()
+		//正在连接中不主动断开，只断开没有连接中的
+		if rpc.client.IsConnected() {
+			nodeInfo.status = Discard
+			rpc.client.Unlock()
+			cls.locker.Unlock()
+			log.Release("Discard node %d %s",nodeInfo.NodeId,nodeInfo.ListenAddr)
+			return
+		}
+		rpc.client.Unlock()
+		break
+	}
+
 	for _,serviceName := range nodeInfo.ServiceList{
 		cls.delServiceNode(serviceName,nodeId)
 	}
 
-	rpc,ok := cls.mapRpc[nodeId]
 	delete(cls.mapIdNode,nodeId)
 	delete(cls.mapRpc,nodeId)
-
 	cls.locker.Unlock()
 	if ok == true {
 		rpc.client.Close(false)
 	}
+
+	log.Release("remove node %d %s",nodeInfo.NodeId,nodeInfo.ListenAddr)
 }
 
-func (cls *Cluster) serviceDiscoveryDelNode (nodeId int){
+func (cls *Cluster) serviceDiscoveryDelNode (nodeId int,immediately bool){
 	if nodeId == 0 {
 		return
 	}
 
-	cls.DelNode(nodeId)
+	cls.DelNode(nodeId,immediately)
 }
 
 func (cls *Cluster) delServiceNode(serviceName string,nodeId int){
@@ -107,6 +149,7 @@ func (cls *Cluster) delServiceNode(serviceName string,nodeId int){
 		delete(cls.mapServiceNode,serviceName)
 	}
 }
+
 
 func (cls *Cluster) serviceDiscoverySetNodeInfo (nodeInfo *NodeInfo){
 	//本地结点不加入
@@ -141,6 +184,8 @@ func (cls *Cluster) serviceDiscoverySetNodeInfo (nodeInfo *NodeInfo){
 	}
 	cls.mapIdNode[nodeInfo.NodeId] = *nodeInfo
 
+	log.Release("Discovery nodeId: %d services:%+v",nodeInfo.NodeId,nodeInfo.PublicServiceList)
+	
 	//已经存在连接，则不需要进行设置
 	if _,rpcInfoOK := cls.mapRpc[nodeInfo.NodeId];rpcInfoOK == true {
 		return
@@ -151,6 +196,8 @@ func (cls *Cluster) serviceDiscoverySetNodeInfo (nodeInfo *NodeInfo){
 	rpcInfo.client.TriggerRpcEvent = cls.triggerRpcEvent
 	rpcInfo.client.Connect(nodeInfo.NodeId,nodeInfo.ListenAddr)
 	cls.mapRpc[nodeInfo.NodeId] = rpcInfo
+
+
 }
 
 func (cls *Cluster) buildLocalRpc(){
@@ -189,7 +236,7 @@ func (cls *Cluster) checkDynamicDiscovery(localNodeId int) (bool,bool){
 	var hasMaster bool  //是否配置Master服务
 
 	//遍历所有结点
-	for _,nodeInfo := range cls.discoveryNodeList{
+	for _,nodeInfo := range cls.masterDiscoveryNodeList{
 		if nodeInfo.NodeId == localNodeId {
 			localMaster = true
 		}
@@ -200,8 +247,12 @@ func (cls *Cluster) checkDynamicDiscovery(localNodeId int) (bool,bool){
 	return localMaster,hasMaster
 }
 
-func (cls *Cluster) appendService(serviceName string){
+func (cls *Cluster) appendService(serviceName string,bPublicService bool){
 	cls.localNodeInfo.ServiceList = append(cls.localNodeInfo.ServiceList,serviceName)
+	if bPublicService {
+		cls.localNodeInfo.PublicServiceList = append(cls.localNodeInfo.PublicServiceList,serviceName)
+	}
+
 	if _,ok:=cls.mapServiceNode[serviceName];ok==false {
 		cls.mapServiceNode[serviceName] = map[int]struct{}{}
 	}
@@ -209,7 +260,21 @@ func (cls *Cluster) appendService(serviceName string){
 }
 
 func (cls *Cluster) GetDiscoveryNodeList()  []NodeInfo{
-	return cls.discoveryNodeList
+	return cls.masterDiscoveryNodeList
+}
+
+func (cls *Cluster) GetMasterDiscoveryNodeInfo(nodeId int)  *NodeInfo{
+	for i:=0;i<len(cls.masterDiscoveryNodeList);i++{
+		if cls.masterDiscoveryNodeList[i].NodeId == nodeId {
+			return &cls.masterDiscoveryNodeList[i]
+		}
+	}
+
+	return nil
+}
+
+func (cls *Cluster) IsMasterDiscoveryNode() bool{
+	return cls.GetMasterDiscoveryNodeInfo(cls.GetLocalNodeInfo().NodeId)!=nil
 }
 
 func (cls *Cluster) SetupServiceDiscovery(localNodeId int,setupServiceFun SetupServiceFun) {
@@ -228,9 +293,9 @@ func (cls *Cluster) SetupServiceDiscovery(localNodeId int,setupServiceFun SetupS
 	//2.如果为动态服务发现安装本地发现服务
 	cls.serviceDiscovery = getDynamicDiscovery()
 	if localMaster == true {
-		cls.appendService(DynamicDiscoveryMasterName)
+		cls.appendService(DynamicDiscoveryMasterName,false)
 	}
-	cls.appendService(DynamicDiscoveryClientName)
+	cls.appendService(DynamicDiscoveryClientName,true)
 
 }
 
@@ -339,4 +404,17 @@ func (cls *Cluster) FetchAllNodeId(fetchFun func(nodeId int)){
 		fetchFun(nodeId)
 	}
 	cls.locker.Unlock()
+}
+
+func HasService(nodeId int,serviceName string) bool{
+	cluster.locker.RLock()
+	defer cluster.locker.RUnlock()
+
+	mapNode,_ := cluster.mapServiceNode[serviceName]
+	if mapNode!=nil {
+		_,ok := mapNode[nodeId]
+		return ok
+	}
+
+	return false
 }

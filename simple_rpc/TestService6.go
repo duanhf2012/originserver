@@ -30,11 +30,12 @@ type InputData struct {
 	B int
 }
 
-func (slf *TestService6) OnRpcConnected(nodeId int){
+
+func (slf *TestService6) OnNodeConnected(nodeId int){
 	fmt.Printf("node id %d is conntected.\n", nodeId)
 }
 
-func (slf *TestService6) OnRpcDisconnect(nodeId int){
+func (slf *TestService6) OnNodeDisconnect(nodeId int){
 	fmt.Printf("node id %d is disconntected.\n", nodeId)
 }
 
