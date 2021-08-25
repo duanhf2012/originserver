@@ -22,7 +22,7 @@ type TestService1 struct {
 	//例如: Rpc,事件驱动,定时器等
 	service.Service
 
-	crontabModuleId int64
+	crontabModuleId uint32
 }
 
 type CrontabModule struct {

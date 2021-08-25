@@ -24,7 +24,7 @@ func (slf *TestModule) OnInit() error{
 	pService := node.GetService("TestService4")
 
 	//在TestModule中，往TestService4中注册EVENT1类型事件监听
-	pService.(*TestService4).GetEventProcessor().RegEventReciverFunc(EVENT1,slf.GetEventHandler(),slf.OnModuleEvent)
+	pService.(*TestService4).GetEventProcessor().RegEventReceiverFunc(EVENT1,slf.GetEventHandler(),slf.OnModuleEvent)
 	return nil
 }
 
@@ -40,7 +40,7 @@ func (slf *TestService5) OnInit() error {
 	pService := node.GetService("TestService4")
 
 	////在TestModule中，往TestService4中注册EVENT1类型事件监听
-	pService.(*TestService4).GetEventProcessor().RegEventReciverFunc(EVENT1,slf.GetEventHandler(),slf.OnServiceEvent)
+	pService.(*TestService4).GetEventProcessor().RegEventReceiverFunc(EVENT1,slf.GetEventHandler(),slf.OnServiceEvent)
 	slf.AddModule(&TestModule{})
 	return nil
 }
