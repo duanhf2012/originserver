@@ -1,5 +1,5 @@
-# github.com/duanhf2012/origin v0.0.0-20210818093217-2cdada6265b6
-## explicit; go 1.15
+# github.com/duanhf2012/origin v1.17.4
+## explicit; go 1.17
 github.com/duanhf2012/origin/cluster
 github.com/duanhf2012/origin/console
 github.com/duanhf2012/origin/event
@@ -12,6 +12,7 @@ github.com/duanhf2012/origin/rpc
 github.com/duanhf2012/origin/service
 github.com/duanhf2012/origin/sysservice/httpservice
 github.com/duanhf2012/origin/sysservice/tcpservice
+github.com/duanhf2012/origin/util/buildtime
 github.com/duanhf2012/origin/util/sync
 github.com/duanhf2012/origin/util/timer
 github.com/duanhf2012/origin/util/uuid

@@ -1,9 +1,9 @@
 module originserver
 
-go 1.17
+go 1.18
 
 require (
-	github.com/duanhf2012/origin v0.0.0-20210818093217-2cdada6265b6
+	github.com/duanhf2012/origin v1.17.4
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/protobuf v1.5.2
 )

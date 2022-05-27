@@ -10,6 +10,7 @@ import (
 	"github.com/duanhf2012/origin/service"
 	"sync"
 	"time"
+	"runtime"
 )
 
 type TcpService struct {
@@ -143,9 +144,9 @@ func (tcpService *TcpService) TcpEventHandler(ev event.IEvent) {
 	case TPT_DisConnected:
 		tcpService.process.DisConnectedRoute(pack.ClientId)
 	case TPT_UnknownPack:
-		tcpService.process.UnknownMsgRoute(pack.Data,pack.ClientId)
+		tcpService.process.UnknownMsgRoute(pack.ClientId,pack.Data)
 	case TPT_Pack:
-		tcpService.process.MsgRoute(pack.Data, pack.ClientId)
+		tcpService.process.MsgRoute(pack.ClientId,pack.Data)
 	}
 }
 
@@ -180,6 +181,15 @@ func (slf *Client) GetId() uint64 {
 }
 
 func (slf *Client) Run() {
+	defer func() {
+		if r := recover(); r != nil {
+			buf := make([]byte, 4096)
+			l := runtime.Stack(buf, false)
+			errString := fmt.Sprint(r)
+			log.SError("core dump info[",errString,"]\n",string(buf[:l]))
+		}
+	}()
+
 	slf.tcpService.NotifyEvent(&event.Event{Type:event.Sys_Event_Tcp,Data:TcpPack{ClientId:slf.id,Type:TPT_Connected}})
 	for{
 		if slf.tcpConn == nil {
@@ -192,7 +202,7 @@ func (slf *Client) Run() {
 			log.SDebug("read client id ",slf.id," is error:",err.Error())
 			break
 		}
-		data,err:=slf.tcpService.process.Unmarshal(bytes)
+		data,err:=slf.tcpService.process.Unmarshal(slf.id,bytes)
 
 		if err != nil {
 			slf.tcpService.NotifyEvent(&event.Event{Type:event.Sys_Event_Tcp,Data:TcpPack{ClientId:slf.id,Type:TPT_UnknownPack,Data:bytes}})
@@ -218,7 +228,7 @@ func (tcpService *TcpService) SendMsg(clientId uint64,msg interface{}) error{
 	}
 
 	tcpService.mapClientLocker.Unlock()
-	bytes,err := tcpService.process.Marshal(msg)
+	bytes,err := tcpService.process.Marshal(clientId,msg)
 	if err != nil {
 		return err
 	}
@@ -253,6 +263,7 @@ func (tcpService *TcpService) GetClientIp(clientid uint64) string{
 	return pClient.tcpConn.GetRemoteIp()
 }
 
+
 func (tcpService *TcpService) SendRawMsg(clientId uint64,msg []byte) error{
 	tcpService.mapClientLocker.Lock()
 	client,ok := tcpService.mapClient[clientId]
@@ -264,6 +275,19 @@ func (tcpService *TcpService) SendRawMsg(clientId uint64,msg []byte) error{
 	client.tcpConn.SetWriteDeadline(tcpService.WriteDeadline)
 	return client.tcpConn.WriteMsg(msg)
 }
+
+func (tcpService *TcpService) SendRawData(clientId uint64,data []byte) error{
+	tcpService.mapClientLocker.Lock()
+	client,ok := tcpService.mapClient[clientId]
+	if ok == false{
+		tcpService.mapClientLocker.Unlock()
+		return fmt.Errorf("client %d is disconnect!",clientId)
+	}
+	tcpService.mapClientLocker.Unlock()
+	client.tcpConn.SetWriteDeadline(tcpService.WriteDeadline)
+	return client.tcpConn.WriteRawMsg(data)
+}
+
 
 func (tcpService *TcpService) GetConnNum() int {
 	tcpService.mapClientLocker.Lock()

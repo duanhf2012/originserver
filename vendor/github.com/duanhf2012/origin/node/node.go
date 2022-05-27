@@ -9,6 +9,7 @@ import (
 	"github.com/duanhf2012/origin/profiler"
 	"github.com/duanhf2012/origin/service"
 	"github.com/duanhf2012/origin/util/timer"
+	"github.com/duanhf2012/origin/util/buildtime"
 	"io/ioutil"
 	slog "log"
 	"net/http"
@@ -38,6 +39,7 @@ func init() {
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM,syscall.Signal(10))
 
 	console.RegisterCommandBool("help",false,"<-help> This help.",usage)
+	console.RegisterCommandString("name","","<-name nodeName> Node's name.",setName)
 	console.RegisterCommandString("start","","<-start nodeid=nodeid> Run originserver.",startNode)
 	console.RegisterCommandString("stop","","<-stop nodeid=nodeid> Stop originserver process.",stopNode)
 	console.RegisterCommandString("config","","<-config path> Configuration file path.",setConfigPath)
@@ -53,10 +55,17 @@ func usage(val interface{}) error{
 		return nil
 	}
 
-	fmt.Fprintf(os.Stderr, `orgin version: orgin/2.14.20201029
-Usage: originserver [-help] [-start node=1] [-stop] [-config path] [-pprof 0.0.0.0:6060]...
-`)
+	if len(buildtime.GetBuildDateTime())>0 {
+		fmt.Fprintf(os.Stderr, "Welcome to Origin(build info: %s)\nUsage: originserver [-help] [-start node=1] [-stop] [-config path] [-pprof 0.0.0.0:6060]...\n",buildtime.GetBuildDateTime())
+	}else{
+		fmt.Fprintf(os.Stderr, "Welcome to Origin\nUsage: originserver [-help] [-start node=1] [-stop] [-config path] [-pprof 0.0.0.0:6060]...\n")
+	}
+
 	console.PrintDefaults()
+	return nil
+}
+
+func setName(val interface{}) error {
 	return nil
 }
 
