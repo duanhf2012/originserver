@@ -13,10 +13,11 @@ import (
 	//导入simple_service模块
 	_ "originserver/simple_service"
 	_ "originserver/simple_tcp"
+	_ "originserver/simple_ws"
 )
 
-
 func main() {
+
 	//打开性能分析报告功能，并设置10秒汇报一次
 	node.OpenProfilerReport(time.Second * 10)
 	node.Start()
