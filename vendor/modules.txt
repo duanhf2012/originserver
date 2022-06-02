@@ -1,4 +1,4 @@
-# github.com/duanhf2012/origin v1.17.5-0.20220602080916-776b23402208
+# github.com/duanhf2012/origin v1.17.6
 ## explicit; go 1.17
 github.com/duanhf2012/origin/cluster
 github.com/duanhf2012/origin/console
