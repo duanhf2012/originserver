@@ -6,7 +6,6 @@ import (
 	"github.com/duanhf2012/origin/node"
 	"github.com/duanhf2012/origin/service"
 	"github.com/duanhf2012/origin/sysservice/wsservice"
-	"github.com/gorilla/websocket"
 )
 
 type WsGateService struct {
@@ -40,7 +39,8 @@ func (slf *WsGateService) OnInit() error {
 	//测试用的json：{"typ":1,"UserName":"username...张","Passwd":"ksdfjwef8"}
 	slf.processor.Register(MessageId1, &MsgStruct{}, slf.ProcessMessage)
 	slf.wsService.SetProcessor(slf.processor, slf.GetEventHandler())
-	slf.wsService.SetMessageType(websocket.BinaryMessage)
+	//默认消息类型是：websocket.TextMessage
+	//slf.wsService.SetMessageType(websocket.BinaryMessage)
 	return nil
 }
 
