@@ -40,7 +40,7 @@ func (slf *WsGateService) OnInit() error {
 	//测试用的json：{"typ":1,"UserName":"username...张","Passwd":"ksdfjwef8"}
 	slf.processor.Register(MessageId1, &MsgStruct{}, slf.ProcessMessage)
 	slf.wsService.SetProcessor(slf.processor, slf.GetEventHandler())
-	slf.wsService.SetMessageType(websocket.TextMessage)
+	slf.wsService.SetMessageType(websocket.BinaryMessage)
 	return nil
 }
 
