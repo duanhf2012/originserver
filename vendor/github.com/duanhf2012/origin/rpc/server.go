@@ -62,6 +62,7 @@ func (server *Server) Init(rpcHandleFinder RpcHandleFinder) {
 	server.rpcServer = &network.TCPServer{}
 }
 
+
 func (server *Server) Start(listenAddr string, maxRpcParamLen uint32) {
 	splitAddr := strings.Split(listenAddr, ":")
 	if len(splitAddr) != 2 {
@@ -77,7 +78,7 @@ func (server *Server) Start(listenAddr string, maxRpcParamLen uint32) {
 		server.rpcServer.MaxMsgLen = math.MaxUint32
 	}
 
-	server.rpcServer.MaxConnNum = 10000
+	server.rpcServer.MaxConnNum = 100000
 	server.rpcServer.PendingWriteNum = 2000000
 	server.rpcServer.NewAgent = server.NewAgent
 	server.rpcServer.LittleEndian = LittleEndian
@@ -233,7 +234,7 @@ func (server *Server) NewAgent(c *network.TCPConn) network.Agent {
 	return agent
 }
 
-func (server *Server) myselfRpcHandlerGo(handlerName string, serviceMethod string, args interface{}, reply interface{}) error {
+func (server *Server) myselfRpcHandlerGo(handlerName string, serviceMethod string, args interface{},callBack reflect.Value, reply interface{}) error {
 	rpcHandler := server.rpcHandleFinder.FindRpcHandler(handlerName)
 	if rpcHandler == nil {
 		err := errors.New("service method " + serviceMethod + " not config!")
@@ -241,7 +242,9 @@ func (server *Server) myselfRpcHandlerGo(handlerName string, serviceMethod strin
 		return err
 	}
 
-	return rpcHandler.CallMethod(serviceMethod, args, reply)
+
+
+	return rpcHandler.CallMethod(serviceMethod, args,callBack, reply)
 }
 
 func (server *Server) selfNodeRpcHandlerGo(processor IRpcProcessor, client *Client, noReply bool, handlerName string, rpcMethodId uint32, serviceMethod string, args interface{}, reply interface{}, rawArgs []byte) *Call {
@@ -338,7 +341,7 @@ func (server *Server) selfNodeRpcHandlerAsyncGo(client *Client, callerRpcHandler
 		pCall.rpcHandler = callerRpcHandler
 		pCall.callback = &callback
 		pCall.Reply = reply
-
+		pCall.ServiceMethod = serviceMethod
 		client.AddPending(pCall)
 		req.requestHandle = func(Returns interface{}, Err RpcError) {
 			v := client.RemovePending(callSeq)

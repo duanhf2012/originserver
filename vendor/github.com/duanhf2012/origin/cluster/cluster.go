@@ -46,16 +46,18 @@ type Cluster struct {
 	globalCfg               interface{} //全局配置
 
 	localServiceCfg  map[string]interface{} //map[serviceName]配置数据*
-	mapRpc           map[int]NodeRpcInfo    //nodeId
 	serviceDiscovery IServiceDiscovery      //服务发现接口
 
+
 	locker         sync.RWMutex                //结点与服务关系保护锁
+	mapRpc           map[int]NodeRpcInfo    //nodeId
 	mapIdNode      map[int]NodeInfo            //map[NodeId]NodeInfo
 	mapServiceNode map[string]map[int]struct{} //map[serviceName]map[NodeId]
 
 	rpcServer                rpc.Server
 	rpcEventLocker           sync.RWMutex        //Rpc事件监听保护锁
 	mapServiceListenRpcEvent map[string]struct{} //ServiceName
+	mapServiceListenDiscoveryEvent map[string]struct{} //ServiceName
 }
 
 func GetCluster() *Cluster {
@@ -94,9 +96,10 @@ func (cls *Cluster) DelNode(nodeId int, immediately bool) {
 		return
 	}
 	cls.locker.Lock()
+	defer cls.locker.Unlock()
+
 	nodeInfo, ok := cls.mapIdNode[nodeId]
 	if ok == false {
-		cls.locker.Unlock()
 		return
 	}
 
@@ -112,7 +115,6 @@ func (cls *Cluster) DelNode(nodeId int, immediately bool) {
 		if rpc.client.IsConnected() {
 			nodeInfo.status = Discard
 			rpc.client.Unlock()
-			cls.locker.Unlock()
 			log.SRelease("Discard node ", nodeInfo.NodeId, " ", nodeInfo.ListenAddr)
 			return
 		}
@@ -126,7 +128,6 @@ func (cls *Cluster) DelNode(nodeId int, immediately bool) {
 
 	delete(cls.mapIdNode, nodeId)
 	delete(cls.mapRpc, nodeId)
-	cls.locker.Unlock()
 	if ok == true {
 		rpc.client.Close(false)
 	}
@@ -224,6 +225,9 @@ func (cls *Cluster) Init(localNodeId int, setupServiceFun SetupServiceFun) error
 	//2.安装服务发现结点
 	cls.SetupServiceDiscovery(localNodeId, setupServiceFun)
 	service.RegRpcEventFun = cls.RegRpcEvent
+	service.UnRegRpcEventFun = cls.UnRegRpcEvent
+	service.RegDiscoveryServiceEventFun = cls.RegDiscoveryEvent
+	service.UnRegDiscoveryServiceEventFun = cls.UnReDiscoveryEvent
 
 	err = cls.serviceDiscovery.InitDiscovery(localNodeId, cls.serviceDiscoveryDelNode, cls.serviceDiscoverySetNodeInfo)
 	if err != nil {
@@ -364,6 +368,7 @@ func (cls *Cluster) triggerRpcEvent(bConnect bool, clientSeq uint32, nodeId int)
 	cls.locker.Unlock()
 
 	cls.rpcEventLocker.Lock()
+	defer cls.rpcEventLocker.Unlock()
 	for serviceName, _ := range cls.mapServiceListenRpcEvent {
 		ser := service.GetService(serviceName)
 		if ser == nil {
@@ -376,7 +381,27 @@ func (cls *Cluster) triggerRpcEvent(bConnect bool, clientSeq uint32, nodeId int)
 		eventData.NodeId = nodeId
 		ser.(service.IModule).NotifyEvent(&eventData)
 	}
-	cls.rpcEventLocker.Unlock()
+}
+
+
+func (cls *Cluster) TriggerDiscoveryEvent(bDiscovery bool, nodeId int, serviceName []string) {
+	cls.rpcEventLocker.Lock()
+	defer cls.rpcEventLocker.Unlock()
+
+	for sName, _ := range cls.mapServiceListenDiscoveryEvent {
+		ser := service.GetService(sName)
+		if ser == nil {
+			log.SError("cannot find service name ", serviceName)
+			continue
+		}
+
+		var eventData service.DiscoveryServiceEvent
+		eventData.IsDiscovery = bDiscovery
+		eventData.NodeId = nodeId
+		eventData.ServiceName = serviceName
+		ser.(service.IModule).NotifyEvent(&eventData)
+	}
+
 }
 
 func (cls *Cluster) GetLocalNodeInfo() *NodeInfo {
@@ -399,13 +424,24 @@ func (cls *Cluster) UnRegRpcEvent(serviceName string) {
 	cls.rpcEventLocker.Unlock()
 }
 
-func (cls *Cluster) FetchAllNodeId(fetchFun func(nodeId int)) {
-	cls.locker.Lock()
-	for nodeId, _ := range cls.mapIdNode {
-		fetchFun(nodeId)
+
+func (cls *Cluster) RegDiscoveryEvent(serviceName string) {
+	cls.rpcEventLocker.Lock()
+	if cls.mapServiceListenDiscoveryEvent == nil {
+		cls.mapServiceListenDiscoveryEvent = map[string]struct{}{}
 	}
-	cls.locker.Unlock()
+
+	cls.mapServiceListenDiscoveryEvent[serviceName] = struct{}{}
+	cls.rpcEventLocker.Unlock()
 }
+
+func (cls *Cluster) UnReDiscoveryEvent(serviceName string) {
+	cls.rpcEventLocker.Lock()
+	delete(cls.mapServiceListenDiscoveryEvent, serviceName)
+	cls.rpcEventLocker.Unlock()
+}
+
+
 
 func HasService(nodeId int, serviceName string) bool {
 	cluster.locker.RLock()
@@ -420,6 +456,32 @@ func HasService(nodeId int, serviceName string) bool {
 	return false
 }
 
+func GetNodeByServiceName(serviceName string) map[int]struct{} {
+	cluster.locker.RLock()
+	defer cluster.locker.RUnlock()
+
+	mapNode, ok := cluster.mapServiceNode[serviceName]
+	if ok == false {
+		return nil
+	}
+
+	mapNodeId := map[int]struct{}{}
+	for nodeId,_ := range mapNode {
+		mapNodeId[nodeId] = struct{}{}
+	}
+
+	return mapNodeId
+}
+
 func (cls *Cluster) GetGlobalCfg() interface{} {
 	return cls.globalCfg
+}
+
+
+func (cls *Cluster) GetNodeInfo(nodeId int) (NodeInfo,bool) {
+	cls.locker.RLock()
+	defer cls.locker.RUnlock()
+
+	nodeInfo,ok:= cls.mapIdNode[nodeId]
+	return nodeInfo,ok
 }
