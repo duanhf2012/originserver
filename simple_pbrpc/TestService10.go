@@ -9,13 +9,13 @@ import (
 	"originserver/common/proto/rpc"
 )
 
-func init(){
+func init() {
 	node.Setup(&TestService10{})
 }
 
 type TestRequest struct {
-	request 	*rpc.TestTwo
-	responder 	rpcHandle.Responder
+	request   *rpc.TestTwo
+	responder rpcHandle.Responder
 }
 
 type TestService10 struct {
@@ -27,7 +27,7 @@ func (slf *TestService10) OnInit() error {
 	slf.channelOptData = make(chan TestRequest, 50)
 	go slf.ExecuteOptData(slf.channelOptData)
 
-	slf.RegRawRpc(1, &RPCRawTestCallBack{})
+	slf.RegRawRpc(1, slf.RawRpcCallBack)
 	return nil
 }
 
@@ -42,13 +42,13 @@ func (slf *TestService10) ExecuteOptData(channelOptData chan TestRequest) {
 
 func (slf *TestService10) DoDealData(dataReq TestRequest) {
 	retInfo := rpc.TestTwoRet{
-		Data:                 dataReq.request.Data,
-		Msg:                  dataReq.request.Msg,
+		Data: dataReq.request.Data,
+		Msg:  dataReq.request.Msg,
 	}
 	dataReq.responder(&retInfo, rpcHandle.NilError)
 }
 
-func (slf *TestService10) RPC_TestResponder(responder rpcHandle.Responder, request *rpc.TestTwo) error{
+func (slf *TestService10) RPC_TestResponder(responder rpcHandle.Responder, request *rpc.TestTwo) error {
 	var tRequest TestRequest
 	tRequest.request = request
 	tRequest.responder = responder
@@ -57,17 +57,8 @@ func (slf *TestService10) RPC_TestResponder(responder rpcHandle.Responder, reque
 	return nil
 }
 
-type RPCRawTestCallBack struct {
-}
-
-func (cb *RPCRawTestCallBack) Unmarshal(data []byte) (interface{},error){
-	//fmt.Println(string(data))
-
+func (slf *TestService10) RawRpcCallBack(data []byte) {
 	retData := rpc.TestOne{}
 	err := proto.Unmarshal(data, &retData)
-	return retData,err
-}
-
-func (cb *RPCRawTestCallBack) CB(data interface{}){
-	fmt.Println(data)
+	fmt.Println(err, retData)
 }

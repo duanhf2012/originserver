@@ -13,12 +13,12 @@ import (
 	"time"
 )
 
-func init(){
+func init() {
 	node.Setup(&TestService8{})
 }
 
 type RawInputArgs struct {
-	rawData       []byte
+	rawData []byte
 }
 
 func (args RawInputArgs) GetRawData() []byte {
@@ -37,18 +37,18 @@ type TestService8 struct {
 
 func (slf *TestService8) OnInit() error {
 	//开始定时器
-	slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestOne)
-	slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestTwo)
-	slf.AfterFunc(5 * time.Second, slf.CallServer9TestOne)
-	slf.AfterFunc(5 * time.Second, slf.CallServer9TestTwo)
-	slf.AfterFunc(5 * time.Second, slf.PrintMsg)
+	slf.AfterFunc(10*time.Second, slf.AsyncCallServer9TestOne)
+	slf.AfterFunc(10*time.Second, slf.AsyncCallServer9TestTwo)
+	slf.AfterFunc(5*time.Second, slf.CallServer9TestOne)
+	slf.AfterFunc(5*time.Second, slf.CallServer9TestTwo)
+	slf.AfterFunc(5*time.Second, slf.PrintMsg)
 
 	//slf.AfterFunc(5 * time.Second, slf.TestGoParameter)
 	//slf.AfterFunc(5 * time.Second, slf.TestCallError)
-	slf.AfterFunc(3 * time.Second, slf.TestRpcResponder)
-	slf.AfterFunc(5 * time.Second, slf.TestRpcRegister)
+	slf.AfterFunc(3*time.Second, slf.TestRpcResponder)
+	slf.AfterFunc(5*time.Second, slf.TestRpcRegister)
 	//slf.AfterFunc(5 * time.Second, slf.TestCallPanic)
-	slf.AfterFunc(5 * time.Second, slf.TestCallList)
+	slf.AfterFunc(5*time.Second, slf.TestCallList)
 	return nil
 }
 
@@ -67,7 +67,7 @@ func (slf *TestService8) RPC_Service8TestTwo(arg *rpc.TestTwo, ret *rpc.TestTwoR
 
 func (slf *TestService8) TestCallList(t *timer.Timer) {
 	arg := rpc.TestThree{
-		UList:                make([]uint64, 0, 10),
+		UList: make([]uint64, 0, 10),
 	}
 	arg.UList = append(arg.UList, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 	slf.Go("TestService9.RPC_Service9TestSix", &arg)
@@ -76,18 +76,16 @@ func (slf *TestService8) TestCallList(t *timer.Timer) {
 func (slf *TestService8) TestRpcRegister(t *timer.Timer) {
 	arg := rpc.TestOne{Msg: "test Rpc Register"}
 	sendByte, _ := proto.Marshal(&arg)
+	
+	slf.RawGoNode(rpcHandle.RpcProcessorGoGoPB, 3, 1, "TestService10", sendByte)
 
-	var inputArgs RawInputArgs
-	inputArgs.rawData = sendByte
-	slf.RawGoNode(rpcHandle.RpcProcessorGoGoPB, 3, 1, "TestService10", &inputArgs)
-
-	slf.AfterFunc(5 * time.Second, slf.TestRpcRegister)
+	slf.AfterFunc(5*time.Second, slf.TestRpcRegister)
 }
 
 func (slf *TestService8) TestRpcResponder(t *timer.Timer) {
 	argCall := rpc.TestTwo{
-		Data:                 100,
-		Msg:                  "test responder",
+		Data: 100,
+		Msg:  "test responder",
 	}
 	retCall := rpc.TestTwoRet{}
 	errCall := slf.Call("TestService10.RPC_TestResponder", &argCall, &retCall)
@@ -97,8 +95,8 @@ func (slf *TestService8) TestRpcResponder(t *timer.Timer) {
 	log.Release("call receive data[%+v]", &retCall)
 
 	argAsyncCall := rpc.TestTwo{
-		Data:                 200,
-		Msg:                  "test responder AsyncCall",
+		Data: 200,
+		Msg:  "test responder AsyncCall",
 	}
 	errAsyncCall := slf.AsyncCall("TestService10.RPC_TestResponder", &argAsyncCall, func(ret *rpc.TestTwoRet, err error) {
 		if err != nil {
@@ -111,7 +109,7 @@ func (slf *TestService8) TestRpcResponder(t *timer.Timer) {
 		log.Error("%+v", errAsyncCall)
 	}
 
-	slf.AfterFunc(3 * time.Second, slf.TestRpcResponder)
+	slf.AfterFunc(3*time.Second, slf.TestRpcResponder)
 }
 
 func (slf *TestService8) TestGoParameter(t *timer.Timer) {
@@ -127,7 +125,7 @@ func (slf *TestService8) TestGoParameter(t *timer.Timer) {
 		log.Error("TestService8 RPC_Service9TestThree err[%+v], arg[%+v]", errGo, &argTwo)
 	}
 
-	slf.AfterFunc(5 * time.Second, slf.TestGoParameter)
+	slf.AfterFunc(5*time.Second, slf.TestGoParameter)
 }
 
 func (slf *TestService8) TestCallPanic() {
@@ -139,7 +137,7 @@ func (slf *TestService8) TestCallPanic() {
 	}
 
 	argTwo := rpc.TestOne{Msg: "Test22222222222"}
-	err = slf.AsyncCall("TestService9.RPC_Service9TestFive", &argTwo, func(ret *rpc.TestOneRet, err error){
+	err = slf.AsyncCall("TestService9.RPC_Service9TestFive", &argTwo, func(ret *rpc.TestOneRet, err error) {
 		if err != nil {
 			log.Error("TestService8 RPC_Service9TestFive err[%+v], arg[%+v]", err, &argOne)
 		}
@@ -158,7 +156,7 @@ func (slf *TestService8) TestCallError(t *timer.Timer) {
 	}
 
 	argTwo := rpc.TestOne{Msg: "Test22222222222"}
-	err1 := slf.AsyncCall("TestService9.RPC_Service9TestFour", &argTwo, func(ret *rpc.TestOneRet, err error){
+	err1 := slf.AsyncCall("TestService9.RPC_Service9TestFour", &argTwo, func(ret *rpc.TestOneRet, err error) {
 		if err != nil {
 			log.Error("TestService8 RPC_Service9TestFour err[%+v], arg[%+v]", err, &argTwo)
 		}
@@ -167,11 +165,11 @@ func (slf *TestService8) TestCallError(t *timer.Timer) {
 		log.Error("TestService8 RPC_Service9TestFour err[%+v], arg[%+v]", err1, &argTwo)
 	}
 
-	slf.AfterFunc(5 * time.Second, slf.TestCallError)
+	slf.AfterFunc(5*time.Second, slf.TestCallError)
 }
 
 func (slf *TestService8) PrintMsg(t *timer.Timer) {
-	slf.AfterFunc(5 * time.Second, slf.PrintMsg)
+	slf.AfterFunc(5*time.Second, slf.PrintMsg)
 }
 
 func (slf *TestService8) AsyncCallServer9TestOne(t *timer.Timer) {
@@ -180,18 +178,18 @@ func (slf *TestService8) AsyncCallServer9TestOne(t *timer.Timer) {
 			arg := rpc.TestOne{Msg: uuid.Rand().HexEx()}
 			errCall := slf.AsyncCall("TestService9.RPC_Service9TestOne",
 				&arg, func(ret *rpc.TestOneRet, err error) {
-				if err != nil || ret.Msg != arg.Msg {
-					log.Error("TestService8 AsyncCallServer9TestOne err[%+v], arg[%+v], ret[%+v]", err, arg, ret)
-					return
-				}
-				log.Release("Async call RPC_Service9TestOne receive[%+v]", ret)
-			})
+					if err != nil || ret.Msg != arg.Msg {
+						log.Error("TestService8 AsyncCallServer9TestOne err[%+v], arg[%+v], ret[%+v]", err, arg, ret)
+						return
+					}
+					log.Release("Async call RPC_Service9TestOne receive[%+v]", ret)
+				})
 			if errCall != nil {
 				log.Error("TestService8 AsyncCallServer9TestOne err[%+v]", errCall)
 			}
 		}()
 	}
-	slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestOne)
+	slf.AfterFunc(10*time.Second, slf.AsyncCallServer9TestOne)
 }
 
 func (slf *TestService8) AsyncCallServer9TestTwo(t *timer.Timer) {
@@ -210,7 +208,7 @@ func (slf *TestService8) AsyncCallServer9TestTwo(t *timer.Timer) {
 			}
 		}()
 	}
-	slf.AfterFunc(10 * time.Second, slf.AsyncCallServer9TestTwo)
+	slf.AfterFunc(10*time.Second, slf.AsyncCallServer9TestTwo)
 }
 
 func (slf *TestService8) CallServer9TestOne(t *timer.Timer) {
@@ -226,7 +224,7 @@ func (slf *TestService8) CallServer9TestOne(t *timer.Timer) {
 			log.Release("call RPC_Service9TestOne receive[%+v]", ret)
 		}()
 	}
-	slf.AfterFunc(5 * time.Second, slf.CallServer9TestOne)
+	slf.AfterFunc(5*time.Second, slf.CallServer9TestOne)
 }
 
 func (slf *TestService8) CallServer9TestTwo(t *timer.Timer) {
@@ -241,5 +239,5 @@ func (slf *TestService8) CallServer9TestTwo(t *timer.Timer) {
 			//log.Release("call RPC_Service9TestTwo receive[%+v]", ret)
 		}()
 	}
-	slf.AfterFunc(5 * time.Second, slf.CallServer9TestTwo)
+	slf.AfterFunc(5*time.Second, slf.CallServer9TestTwo)
 }

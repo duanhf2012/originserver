@@ -19,7 +19,6 @@ const (
 	RpcProcessorGoGoPB RpcProcessorType = 1
 )
 
-//var processor IRpcProcessor = &JsonProcessor{}
 var arrayProcessor = []IRpcProcessor{&JsonProcessor{}, &GoGoPBProcessor{}}
 var arrayProcessorLen uint8 = 2
 var LittleEndian bool
@@ -63,7 +62,7 @@ func (server *Server) Init(rpcHandleFinder RpcHandleFinder) {
 	server.rpcServer = &network.TCPServer{}
 }
 
-const Default_ReadWriteDeadline = 10*time.Second
+const Default_ReadWriteDeadline = 15*time.Second
 
 func (server *Server) Start(listenAddr string, maxRpcParamLen uint32) {
 	splitAddr := strings.Split(listenAddr, ":")
@@ -84,8 +83,8 @@ func (server *Server) Start(listenAddr string, maxRpcParamLen uint32) {
 	server.rpcServer.PendingWriteNum = 2000000
 	server.rpcServer.NewAgent = server.NewAgent
 	server.rpcServer.LittleEndian = LittleEndian
-	server.rpcServer.WriteDeadline = network.Default_WriteDeadline
-	server.rpcServer.ReadDeadline = network.Default_WriteDeadline
+	server.rpcServer.WriteDeadline = Default_ReadWriteDeadline
+	server.rpcServer.ReadDeadline = Default_ReadWriteDeadline
 	server.rpcServer.Start()
 }
 
@@ -245,11 +244,11 @@ func (server *Server) myselfRpcHandlerGo(client *Client,handlerName string, serv
 		log.SError(err.Error())
 		return err
 	}
-
-
-
+	
 	return rpcHandler.CallMethod(client,serviceMethod, args,callBack, reply)
 }
+
+
 
 func (server *Server) selfNodeRpcHandlerGo(processor IRpcProcessor, client *Client, noReply bool, handlerName string, rpcMethodId uint32, serviceMethod string, args interface{}, reply interface{}, rawArgs []byte) *Call {
 	pCall := MakeCall()
@@ -265,11 +264,26 @@ func (server *Server) selfNodeRpcHandlerGo(processor IRpcProcessor, client *Clie
 		return pCall
 	}
 
+	var iParam interface{}
 	if processor == nil {
 		_, processor = GetProcessorType(args)
 	}
+
+	if args != nil {
+		var err error
+		iParam,err = processor.Clone(args)
+		if err != nil {
+			pCall.Seq = 0
+			pCall.Err = errors.New("RpcHandler " + handlerName + "."+serviceMethod+" deep copy inParam is error:" + err.Error())
+			pCall.done <- pCall
+			log.SError(pCall.Err.Error())
+
+			return pCall
+		}
+	}
+
 	req := MakeRpcRequest(processor, 0, rpcMethodId, serviceMethod, noReply, nil)
-	req.inParam = args
+	req.inParam = iParam
 	req.localReply = reply
 	if rawArgs != nil {
 		var err error
@@ -335,8 +349,15 @@ func (server *Server) selfNodeRpcHandlerAsyncGo(client *Client, callerRpcHandler
 	}
 
 	_, processor := GetProcessorType(args)
+	iParam,err := processor.Clone(args)
+	if err != nil {
+		errM := errors.New("RpcHandler " + handlerName + "."+serviceMethod+" deep copy inParam is error:" + err.Error())
+		log.SError(errM.Error())
+		return errM
+	}
+
 	req := MakeRpcRequest(processor, 0, 0, serviceMethod, noReply, nil)
-	req.inParam = args
+	req.inParam = iParam
 	req.localReply = reply
 
 	if noReply == false {
@@ -370,7 +391,7 @@ func (server *Server) selfNodeRpcHandlerAsyncGo(client *Client, callerRpcHandler
 		}
 	}
 
-	err := rpcHandler.PushRpcRequest(req)
+	err = rpcHandler.PushRpcRequest(req)
 	if err != nil {
 		ReleaseRpcRequest(req)
 		return err
