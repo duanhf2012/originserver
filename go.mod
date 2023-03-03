@@ -3,7 +3,7 @@ module originserver
 go 1.19
 
 require (
-	github.com/duanhf2012/origin v1.19.3-0.20230131055041-a7c6b45764f3
+	github.com/duanhf2012/origin v1.19.3
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/protobuf v1.5.0
 )
