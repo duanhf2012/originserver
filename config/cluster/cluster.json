@@ -13,7 +13,7 @@
         "NodeName": "Node_Test1",
         "Private": true,
         "remark":"//以_打头的，表示只在本机进程，不对整个子网开发",
-        "ServiceList": ["WSService","WsGateService","TestService1","TestService2","TestService3","TestService4","TestService5","TestService6","TestService7","HttpService","TestHttpService","TcpService","TestTcpService","TcpGateService","TestClientService","GameService","MyTcpService"]
+        "ServiceList": ["WSService","WsGateService","TestService1","TestService2","TestService3","TestService4","TestService5","TestService6","TestService7","HttpService","TestHttpService","TestTcpService","MyTcpService"]
       },
       {
         "NodeId": 2,

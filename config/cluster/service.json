@@ -34,21 +34,12 @@
   "NodeService":[
    {
       "NodeId":1,
-	  "TcpService":{
-		"ListenAddr":"0.0.0.0:9830",
-		"MaxConnNum":3000,
-		"PendingWriteNum":10000,
-		"LittleEndian":false,
-		"MinMsgLen":4,
-		"MaxMsgLen":65535,
-		"ReadDeadline": 30,
-		"WriteDeadline": 30
-	  },
 	   "MyTcpService":{
 		   "ListenAddr":"0.0.0.0:9930",
 		   "MaxConnNum":3000,
 		   "PendingWriteNum":10000,
 		   "LittleEndian":false,
+		   "LenMsgLen": 2,
 		   "MinMsgLen":4,
 		   "MaxMsgLen":65535,
 		   "ReadDeadline": 30,
