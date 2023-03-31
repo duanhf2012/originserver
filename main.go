@@ -10,6 +10,7 @@ import (
 	_ "originserver/simple_module"
 	_ "originserver/simple_pbrpc"
 	_ "originserver/simple_rpc"
+	_ "originserver/simple_asyncdo"
 	//导入simple_service模块
 	_ "originserver/simple_service"
 	_ "originserver/simple_tcp"

@@ -69,7 +69,7 @@ type Client struct {
 	pbProcessor *processor.PBProcessor
 }
 
-func (slf *TestTcpService) testTcp() {
+func (slf *TestTcpService) testTcp() bool {
 	//开启客户端连接
 	slf.client.Addr = ":9930"          //因为在service.json中MyTcpService.ListenAddr配置的是0.0.0.0:9930
 	slf.client.NewAgent = slf.newAgent //建议连接成功时会新建一个Agent，它即是slf.Client对象
@@ -91,6 +91,9 @@ func (slf *TestTcpService) testTcp() {
 		//发送出去
 		slf.client.Write(slf.client.conn, buf)
 	})
+
+	//返回值为true，表示继续执行回调，否则不执行回调
+	return false
 }
 
 func (slf *TestTcpService) newAgent(c *network.TCPConn) network.Agent {
