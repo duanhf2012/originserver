@@ -40,6 +40,8 @@ func (slf *TestService6) OnNodeDisconnect(nodeId int) {
 
 func (slf *TestService6) RPC_Sum(input *InputData, output *int) error {
 	*output = input.A + input.B
+	//等待1.5s
+	time.Sleep(1500 * time.Millisecond)
 	return nil
 }
 

@@ -40,6 +40,15 @@ func (slf *TestService7) CallTest(t *timer.Timer) {
 	} else {
 		fmt.Printf("Call output %d\n", output)
 	}
+
+	//自定义超时,默认rpc超时时间为15s
+	err = slf.CallWithTimeout(time.Second*1, "TestService6.RPC_Sum", &input, &output)
+	if err != nil {
+		fmt.Printf("Call error :%+v\n", err)
+	} else {
+		fmt.Printf("Call output %d\n", output)
+	}
+
 }
 
 func (slf *TestService7) AsyncCallTest(t *timer.Timer) {
@@ -50,13 +59,26 @@ func (slf *TestService7) AsyncCallTest(t *timer.Timer) {
 	})*/
 	//异步调用，在数据返回时，会回调传入函数
 	//注意函数的第一个参数一定是RPC_Sum函数的第二个参数，err error为RPC_Sum返回值
-	slf.AsyncCall("TestService6.RPC_Sum", &input, func(output *int, err error) {
+	err := slf.AsyncCall("TestService6.RPC_Sum", &input, func(output *int, err error) {
 		if err != nil {
 			fmt.Printf("AsyncCall error :%+v\n", err)
 		} else {
 			fmt.Printf("AsyncCall output %d\n", *output)
 		}
 	})
+	fmt.Println(err)
+
+	//自定义超时,返回一个cancel函数，可以在适时时候取消rpc调用
+	rpcCancel, err := slf.AsyncCallWithTimeout(time.Second*1, "TestService6.RPC_Sum", &input, func(output *int, err error) {
+		//如果下面注释的rpcCancel()函数被调用，这里可能将不再返回
+		if err != nil {
+			fmt.Printf("AsyncCall error :%+v\n", err)
+		} else {
+			fmt.Printf("AsyncCall output %d\n", *output)
+		}
+	})
+	//rpcCancel()
+	fmt.Println(err, rpcCancel)
 }
 
 func (slf *TestService7) GoTest(t *timer.Timer) {

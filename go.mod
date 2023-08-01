@@ -3,7 +3,7 @@ module originserver
 go 1.19
 
 require (
-	github.com/duanhf2012/origin v1.19.5-0.20230331071227-18fff3b56772
+	github.com/duanhf2012/origin v1.19.10-0.20230801030551-0f3a965d732f
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/protobuf v1.5.0
 )
@@ -13,6 +13,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/pierrec/lz4/v4 v4.1.18 // indirect
 	github.com/stretchr/testify v1.6.1 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 )
