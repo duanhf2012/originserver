@@ -8,7 +8,7 @@ import (
 	"github.com/duanhf2012/origin/service"
 	"github.com/duanhf2012/origin/sysservice/tcpservice"
 	"github.com/duanhf2012/origin/util/timer"
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 	msgpb "originserver/common/proto/msg"
 	"time"
 )

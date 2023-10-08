@@ -2,6 +2,7 @@ package simple_pbrpc
 
 import (
 	"errors"
+	"fmt"
 	"github.com/duanhf2012/origin/log"
 	"github.com/duanhf2012/origin/node"
 	"github.com/duanhf2012/origin/service"
@@ -12,7 +13,7 @@ import (
 	"time"
 )
 
-func init(){
+func init() {
 	node.Setup(&TestService9{})
 }
 
@@ -36,22 +37,22 @@ func (slf *TestService9) OnInit() error {
 	slf.CronFunc(pCron, slf.AsyncCallServer8TestTwo)
 	slf.CronFunc(pCronCall, slf.CallServer8TestOne)
 	slf.CronFunc(pCronCall, slf.CallServer8TestTwo)
-	slf.AfterFunc(5 * time.Second, slf.PrintMsg)
+	slf.AfterFunc(5*time.Second, slf.PrintMsg)
 	return nil
 }
 
 func (slf *TestService9) PrintMsg(t *timer.Timer) {
-	slf.AfterFunc(5 * time.Second, slf.PrintMsg)
+	slf.AfterFunc(5*time.Second, slf.PrintMsg)
 }
 
 func (slf *TestService9) RPC_Service9TestOne(arg *rpc.TestOne, ret *rpc.TestOneRet) error {
-	log.Release("RPC_Service9TestOne[%+v]", arg)
+	log.Info("RPC_Service9TestOne", log.Any("arg", arg))
 	ret.Msg = arg.Msg
 	return nil
 }
 
 func (slf *TestService9) RPC_Service9TestTwo(arg *rpc.TestTwo, ret *rpc.TestTwoRet) error {
-	log.Release("RPC_Service9TestTwo[%+v]", arg)
+	log.Info("RPC_Service9TestTwo", log.Any("arg", arg))
 	ret.Msg = arg.Msg
 	ret.Data = arg.Data
 	return nil
@@ -60,13 +61,13 @@ func (slf *TestService9) RPC_Service9TestTwo(arg *rpc.TestTwo, ret *rpc.TestTwoR
 func (slf *TestService9) RPC_Service9TestThree(arg *rpc.TestOne) error {
 	go func() {
 		time.Sleep(10 * time.Second)
-		log.Release("RPC_Service9TestThree[%+v]", arg)
+		log.Info("RPC_Service9TestThree", log.Any("arg", arg))
 	}()
 	return nil
 }
 
 func (slf *TestService9) RPC_Service9TestFour(arg *rpc.TestOne, ret *rpc.TestOneRet) error {
-	log.Release("RPC_Service9TestOne[%+v]", arg)
+	log.Info("RPC_Service9TestOne", log.Any("arg", arg))
 	return errors.New("test error")
 }
 
@@ -76,7 +77,8 @@ func (slf *TestService9) RPC_Service9TestFive(arg *rpc.TestOne, ret *rpc.TestOne
 }
 
 func (slf *TestService9) RPC_Service9TestSix(arg *rpc.TestThree) error {
-	log.Release("RPC_Service9TestSix receive[%+v]", arg)
+	log.Info("RPC_Service9TestSix", log.Any("arg", arg))
+
 	return nil
 }
 
@@ -86,11 +88,11 @@ func (slf *TestService9) AsyncCallServer8TestOne(cron *timer.Cron) {
 			arg := rpc.TestOne{Msg: uuid.Rand().HexEx()}
 			errCall := slf.AsyncCall("TestService8.RPC_Service8TestOne", &arg, func(ret *rpc.TestOneRet, err error) {
 				if err != nil || ret.Msg != arg.Msg {
-					log.Error("TestService9 AsyncCallServer8TestOne err[%+v], arg[%+v], ret[%+v]", err, arg, ret)
+					log.Error(fmt.Sprintf("TestService9 AsyncCallServer8TestOne err[%+v], arg[%+v], ret[%+v]", err, arg, ret))
 				}
 			})
 			if errCall != nil {
-				log.Error("TestService9 AsyncCallServer8TestOne err[%+v]", errCall)
+				log.Error(fmt.Sprintf("TestService9 AsyncCallServer8TestOne err[%+v]", errCall))
 			}
 		}()
 	}
@@ -106,7 +108,7 @@ func (slf *TestService9) AsyncCallServer8TestTwo(cron *timer.Cron) {
 				}
 			})
 			if errCall != nil {
-				log.Error("TestService9 AsyncCallServer8TestTwo err[%+v]", errCall)
+				log.Error(fmt.Sprintf("TestService9 AsyncCallServer8TestTwo err[%+v]", errCall))
 			}
 		}()
 	}
@@ -119,7 +121,7 @@ func (slf *TestService9) CallServer8TestOne(cron *timer.Cron) {
 			ret := rpc.TestOneRet{}
 			errCall := slf.Call("TestService8.RPC_Service8TestOne", &arg, &ret)
 			if errCall != nil || arg.Msg != ret.Msg {
-				log.Error("TestService9 CallServer8TestOne err[%+v], arg[%+v], ret[%+v]", errCall, &arg, &ret)
+				log.Error(fmt.Sprintf("TestService9 CallServer8TestOne err[%+v], arg[%+v], ret[%+v]", errCall, &arg, &ret))
 			}
 		}()
 	}

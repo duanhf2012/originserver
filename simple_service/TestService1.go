@@ -9,12 +9,12 @@ import (
 	"time"
 )
 
-//模块加载时自动安装TestService1服务
+// 模块加载时自动安装TestService1服务
 func init() {
 	node.Setup(&TestService1{})
 }
 
-//新建自定义服务TestService1
+// 新建自定义服务TestService1
 type TestService1 struct {
 
 	//所有的自定义服务必需加入service.Service基服务
@@ -45,7 +45,7 @@ func (slf *CrontabModule) OnRun(cron *timer.Cron) {
 	fmt.Printf("CrontabModule OnRun.\n")
 }
 
-//服务初始化函数，在安装服务时，服务将自动调用OnInit函数
+// 服务初始化函数，在安装服务时，服务将自动调用OnInit函数
 func (slf *TestService1) OnInit() error {
 	fmt.Printf("TestService1 OnInit.\n")
 	//打开性能分析工具
@@ -84,7 +84,7 @@ func (slf *TestService1) Loop(t *timer.Timer) {
 	//}
 }
 
-func (slf *TestService1) RPC_Test(input *rpc.GoGoPBRpcRequestData, output *rpc.GoGoPBRpcResponseData) error {
+func (slf *TestService1) RPC_Test(input *rpc.PBRpcRequestData, output *rpc.PBRpcResponseData) error {
 	output.Seq = input.Seq
 	output.Error = input.ServiceMethod
 

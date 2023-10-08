@@ -5,7 +5,7 @@ import (
 	"github.com/duanhf2012/origin/node"
 	rpcHandle "github.com/duanhf2012/origin/rpc"
 	"github.com/duanhf2012/origin/service"
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 	"originserver/common/proto/rpc"
 )
 

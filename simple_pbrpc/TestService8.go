@@ -1,13 +1,14 @@
 package simple_pbrpc
 
 import (
+	"fmt"
 	"github.com/duanhf2012/origin/log"
 	"github.com/duanhf2012/origin/node"
 	rpcHandle "github.com/duanhf2012/origin/rpc"
 	"github.com/duanhf2012/origin/service"
 	"github.com/duanhf2012/origin/util/timer"
 	"github.com/duanhf2012/origin/util/uuid"
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 	"math/rand"
 	"originserver/common/proto/rpc"
 	"time"
@@ -53,13 +54,13 @@ func (slf *TestService8) OnInit() error {
 }
 
 func (slf *TestService8) RPC_Service8TestOne(arg *rpc.TestOne, ret *rpc.TestOneRet) error {
-	log.Release("RPC_Service8TestOne[%+v]", arg)
+	log.Info("RPC_Service8TestOne", log.Any("arg", arg))
 	ret.Msg = arg.Msg
 	return nil
 }
 
 func (slf *TestService8) RPC_Service8TestTwo(arg *rpc.TestTwo, ret *rpc.TestTwoRet) error {
-	log.Release("RPC_Service8TestTwo[%+v]", arg)
+	log.Info("RPC_Service8TestTwo", log.Any("arg", arg))
 	ret.Msg = arg.Msg
 	ret.Data = arg.Data
 	return nil
@@ -76,7 +77,7 @@ func (slf *TestService8) TestCallList(t *timer.Timer) {
 func (slf *TestService8) TestRpcRegister(t *timer.Timer) {
 	arg := rpc.TestOne{Msg: "test Rpc Register"}
 	sendByte, _ := proto.Marshal(&arg)
-	
+
 	slf.RawGoNode(rpcHandle.RpcProcessorGoGoPB, 3, 1, "TestService10", sendByte)
 
 	slf.AfterFunc(5*time.Second, slf.TestRpcRegister)
@@ -92,7 +93,7 @@ func (slf *TestService8) TestRpcResponder(t *timer.Timer) {
 	if errCall != nil {
 		log.Error("%+v", errCall)
 	}
-	log.Release("call receive data[%+v]", &retCall)
+	log.Info("call receive data", log.Any("retCall", retCall))
 
 	argAsyncCall := rpc.TestTwo{
 		Data: 200,
@@ -103,7 +104,7 @@ func (slf *TestService8) TestRpcResponder(t *timer.Timer) {
 			log.Error("%+v", err)
 		}
 
-		log.Release("asyncCall receive data[%+v]", ret)
+		log.Info("asyncCall receive data", log.Any("ret", ret))
 	})
 	if errAsyncCall != nil {
 		log.Error("%+v", errAsyncCall)
@@ -182,7 +183,7 @@ func (slf *TestService8) AsyncCallServer9TestOne(t *timer.Timer) {
 						log.Error("TestService8 AsyncCallServer9TestOne err[%+v], arg[%+v], ret[%+v]", err, arg, ret)
 						return
 					}
-					log.Release("Async call RPC_Service9TestOne receive[%+v]", ret)
+					log.Info(fmt.Sprintf("Async call RPC_Service9TestOne receive[%+v]", ret))
 				})
 			if errCall != nil {
 				log.Error("TestService8 AsyncCallServer9TestOne err[%+v]", errCall)
@@ -201,7 +202,7 @@ func (slf *TestService8) AsyncCallServer9TestTwo(t *timer.Timer) {
 					log.Error("TestService8 AsyncCallServer9TestTwo err[%+v], arg[%+v], ret[%+v]", err, arg, ret)
 					return
 				}
-				log.Release("Async call RPC_Service9TestTwo receive[%+v]", ret)
+				log.Info("Async call RPC_Service9TestTwo receive", log.Any("ret", ret))
 			})
 			if errCall != nil {
 				log.Error("TestService8 AsyncCallServer9TestTwo err[%+v]", errCall)
@@ -221,7 +222,7 @@ func (slf *TestService8) CallServer9TestOne(t *timer.Timer) {
 				log.Error("TestService8 CallServer9TestOne err[%+v], arg[%+v], ret[%+v]", errCall, &arg, &ret)
 				return
 			}
-			log.Release("call RPC_Service9TestOne receive[%+v]", ret)
+			log.Info(fmt.Sprintf("call RPC_Service9TestOne receive[%+v]", ret))
 		}()
 	}
 	slf.AfterFunc(5*time.Second, slf.CallServer9TestOne)

@@ -1,11 +1,12 @@
 module originserver
 
-go 1.19
+go 1.21
+
+toolchain go1.21.0
 
 require (
-	github.com/duanhf2012/origin v1.19.10-0.20230801030551-0f3a965d732f
-	github.com/gogo/protobuf v1.3.2
-	github.com/golang/protobuf v1.5.0
+	github.com/duanhf2012/origin v1.21.4-0.20230924055318-ba019ac466b0
+	google.golang.org/protobuf v1.31.0
 )
 
 require (
@@ -15,5 +16,4 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pierrec/lz4/v4 v4.1.18 // indirect
 	github.com/stretchr/testify v1.6.1 // indirect
-	google.golang.org/protobuf v1.26.0 // indirect
 )
